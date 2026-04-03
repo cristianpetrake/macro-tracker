@@ -109,5 +109,6 @@
   {"name":"Mâncare de conopidă cu măsline","cat":"Mâncăruri","cal":75,"p":2.5,"c":8,"f":4},
   {"name":"Mâncare de conopidă fără carne","cat":"Mâncăruri","cal":45,"p":2,"c":7,"f":1.5},
   {"name":"Mâncare de conopidă cu carne","cat":"Mâncăruri","cal":110,"p":9,"c":6,"f":5.5},
-  {"name":"Creveți în sos de vin","cat":"Mâncăruri","cal":130,"p":18.5,"c":3.2,"f":4.8}
+  {"name":"Creveți în sos de vin","cat":"Mâncăruri","cal":130,"p":18.5,"c":3.2,"f":4.8},
+  {"name":"Zacuscă","cat":"Sosuri","cal":92,"p":1.5,"c":8.5,"f":6.0}
 ]
