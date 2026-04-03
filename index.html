@@ -2,86 +2,100 @@
 <html lang="ro">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#059669">
 <title>Macro Tracker</title>
-<link rel="manifest" href="data:application/json;base64,eyJuYW1lIjoiTWFjcm8gVHJhY2tlciIsInNob3J0X25hbWUiOiJNYWNyb3MiLCJzdGFydF91cmwiOiIuIiwiZGlzcGxheSI6InN0YW5kYWxvbmUiLCJiYWNrZ3JvdW5kX2NvbG9yIjoiI2Y5ZmFmYiIsInRoZW1lX2NvbG9yIjoiIzA1OTY2OSJ9">
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<script src="https://apis.google.com/js/api.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#f9fafb;color:#1f2937;-webkit-tap-highlight-color:transparent}
-.header{background:linear-gradient(135deg,#059669,#0d9488);color:#fff;padding:20px 16px;padding-top:max(20px,env(safe-area-inset-top))}
-.header h1{font-size:22px;font-weight:700}
-.header p{font-size:12px;color:#a7f3d0;margin-top:4px}
+.header{background:linear-gradient(135deg,#059669,#0d9488);color:#fff;padding:16px;padding-top:max(16px,env(safe-area-inset-top))}
+.header h1{font-size:20px;font-weight:700}
+.header-row{display:flex;justify-content:space-between;align-items:center}
+.header .sub{font-size:11px;color:#a7f3d0;margin-top:2px}
+.user-pill{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.15);padding:4px 10px 4px 4px;border-radius:20px;font-size:11px}
+.user-pill img{width:24px;height:24px;border-radius:50%}
+.btn-logout{background:none;border:none;color:#a7f3d0;font-size:10px;cursor:pointer;text-decoration:underline}
 .container{max-width:600px;margin:0 auto;padding:12px}
 .card{background:#fff;border-radius:14px;box-shadow:0 1px 3px rgba(0,0,0,.08);border:1px solid #e5e7eb;padding:16px;margin-bottom:12px}
-.card h2{font-size:15px;font-weight:600;color:#1f2937;margin-bottom:12px}
-select,input[type=text],input[type=number]{width:100%;padding:12px;border-radius:10px;border:1px solid #d1d5db;font-size:15px;outline:none;-webkit-appearance:none;background:#fff}
-select{background:#ecfdf5;color:#047857;font-weight:600;border-color:#a7f3d0;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%23047857'%3E%3Cpath d='M6 8L1 3h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center}
+.card h2{font-size:15px;font-weight:600;margin-bottom:10px}
+select,input[type=text],input[type=number],input[type=time]{width:100%;padding:11px;border-radius:10px;border:1px solid #d1d5db;font-size:15px;outline:none;-webkit-appearance:none;background:#fff}
+select{background:#ecfdf5;color:#047857;font-weight:600;border-color:#a7f3d0}
 input:focus{border-color:#059669;box-shadow:0 0 0 3px rgba(5,150,105,.15)}
-.search-wrap{position:relative;margin-top:10px}
-.results{max-height:280px;overflow-y:auto;border:1px solid #e5e7eb;border-radius:10px;margin-top:8px}
-.result-item{padding:12px 14px;border-bottom:1px solid #f3f4f6;cursor:pointer;-webkit-tap-highlight-color:rgba(5,150,105,.1)}
+.results{max-height:250px;overflow-y:auto;border:1px solid #e5e7eb;border-radius:10px;margin-top:8px}
+.result-item{padding:11px 14px;border-bottom:1px solid #f3f4f6;cursor:pointer}
 .result-item:active{background:#ecfdf5}
 .result-item:last-child{border-bottom:none}
-.result-name{font-size:14px;font-weight:500}
-.result-cat{font-size:11px;color:#9ca3af;margin-left:6px}
-.result-macros{font-size:11px;color:#6b7280;margin-top:3px}
-.blue{color:#3b82f6}.amber{color:#d97706}.red{color:#ef4444}
-.selected-food{background:#ecfdf5;border:1px solid #a7f3d0;border-radius:12px;padding:14px;margin-top:12px}
-.qty-row{display:flex;align-items:center;gap:8px;margin:10px 0}
-.qty-row label{font-size:13px;color:#6b7280;white-space:nowrap}
-.qty-row input{width:70px;text-align:center;padding:8px;font-weight:600}
-.qty-buttons{display:flex;gap:4px;flex-wrap:wrap}
-.qty-btn{padding:6px 10px;border-radius:8px;border:1px solid #d1d5db;background:#fff;font-size:12px;font-weight:500;cursor:pointer;color:#374151}
+.result-name{font-size:13px;font-weight:500}
+.result-cat{font-size:10px;color:#9ca3af;margin-left:4px}
+.result-macros{font-size:10px;color:#6b7280;margin-top:2px}
+.blue{color:#3b82f6}.amber{color:#d97706}.red{color:#ef4444}.purple{color:#8b5cf6}
+.selected-food{background:#ecfdf5;border:1px solid #a7f3d0;border-radius:12px;padding:14px;margin-top:10px}
+.qty-row{display:flex;align-items:center;gap:6px;margin:8px 0;flex-wrap:wrap}
+.qty-row label{font-size:12px;color:#6b7280}
+.qty-row input{width:65px;text-align:center;padding:8px;font-weight:600}
+.qty-btn{padding:5px 9px;border-radius:8px;border:1px solid #d1d5db;background:#fff;font-size:11px;font-weight:500;cursor:pointer}
 .qty-btn.active{background:#059669;color:#fff;border-color:#059669}
-.macro-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:12px 0}
-.macro-box{background:#fff;border-radius:10px;padding:10px 6px;text-align:center;border:1px solid #f3f4f6}
-.macro-val{font-size:20px;font-weight:700}
-.macro-unit{font-size:10px;color:#9ca3af}
-.btn-primary{width:100%;padding:13px;background:#059669;color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:600;cursor:pointer}
+.macro-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin:10px 0}
+.macro-box{background:#fff;border-radius:8px;padding:8px 4px;text-align:center;border:1px solid #f3f4f6}
+.macro-val{font-size:18px;font-weight:700}
+.macro-unit{font-size:9px;color:#9ca3af}
+.btn-primary{width:100%;padding:12px;background:#059669;color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer}
 .btn-primary:active{background:#047857}
-.btn-save{padding:10px 18px;background:#0d9488;color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer}
-.btn-save:active{background:#0f766e}
-.meal-item{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:#f9fafb;border-radius:10px;margin-bottom:6px}
-.meal-item-name{font-size:13px;font-weight:500;color:#374151}
-.meal-item-g{font-size:11px;color:#9ca3af;margin-left:4px}
-.meal-item-macros{font-size:11px;font-weight:500;display:flex;gap:6px;align-items:center;flex-shrink:0}
-.remove-btn{background:none;border:none;color:#d1d5db;font-size:20px;cursor:pointer;padding:0 4px;line-height:1}
+.btn-primary:disabled{background:#9ca3af}
+.btn-save{padding:9px 16px;background:#0d9488;color:#fff;border:none;border-radius:10px;font-size:12px;font-weight:600;cursor:pointer}
+.meal-item{display:flex;align-items:center;justify-content:space-between;padding:8px 10px;background:#f9fafb;border-radius:8px;margin-bottom:4px}
+.meal-item-name{font-size:12px;font-weight:500}
+.meal-item-g{font-size:10px;color:#9ca3af;margin-left:3px}
+.meal-item-macros{font-size:10px;font-weight:500;display:flex;gap:5px;align-items:center;flex-shrink:0}
+.remove-btn{background:none;border:none;color:#d1d5db;font-size:18px;cursor:pointer;padding:0 3px;line-height:1}
 .remove-btn:active{color:#ef4444}
-.macro-bar{display:flex;height:8px;border-radius:6px;overflow:hidden;background:#f3f4f6}
+.macro-bar{display:flex;height:6px;border-radius:4px;overflow:hidden;background:#f3f4f6}
 .macro-bar .prot{background:#3b82f6}.macro-bar .carb{background:#fbbf24}.macro-bar .fat{background:#f87171}
-.bar-legend{display:flex;justify-content:space-between;font-size:11px;font-weight:500;margin-top:6px}
-.total-row{display:flex;align-items:center;justify-content:space-between;margin-top:10px;padding-top:10px;border-top:1px solid #f3f4f6}
-.total-row span{font-size:14px;font-weight:700}
-.btn-copy{padding:8px 14px;background:#f3f4f6;color:#6b7280;border:none;border-radius:8px;font-size:12px;font-weight:500;cursor:pointer}
-.btn-copy:active{background:#e5e7eb}
-.day-meal{padding:12px 0;border-bottom:1px solid #f3f4f6}
-.day-meal:last-child{border-bottom:none}
-.day-meal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
-.day-meal-type{font-size:13px;font-weight:600;color:#059669}
-.day-meal-cal{font-size:13px;font-weight:700;color:#374151}
-.day-meal-items{font-size:11px;color:#9ca3af}
-.day-meal-macros{font-size:11px;font-weight:500;color:#6b7280;margin-top:3px}
-.day-total{background:linear-gradient(135deg,#ecfdf5,#f0fdfa);border-radius:12px;padding:16px;margin-top:12px}
-.day-total-label{font-size:11px;color:#6b7280;text-align:center;font-weight:600;margin-bottom:8px;text-transform:uppercase;letter-spacing:1px}
-.cat-pills{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
-.cat-pill{padding:6px 12px;border-radius:20px;font-size:11px;font-weight:600;background:#f3f4f6;color:#6b7280;border:none;cursor:pointer}
+.bar-legend{display:flex;justify-content:space-between;font-size:10px;font-weight:500;margin-top:4px}
+.total-row{display:flex;align-items:center;justify-content:space-between;margin-top:8px;padding-top:8px;border-top:1px solid #f3f4f6}
+.total-row span{font-size:13px;font-weight:700}
+.nav-date{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:12px}
+.nav-btn{width:36px;height:36px;border-radius:10px;border:1px solid #d1d5db;background:#fff;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.nav-btn:active{background:#f3f4f6}
+.nav-date .current{flex:1;text-align:center;font-size:14px;font-weight:600;color:#1f2937}
+.nav-date .today-btn{font-size:11px;background:#059669;color:#fff;border:none;padding:5px 10px;border-radius:8px;cursor:pointer}
+.day-meals{margin-top:8px}
+.day-meal-row{display:flex;align-items:center;justify-content:space-between;padding:8px 10px;border-bottom:1px solid #f3f4f6}
+.day-meal-row:last-child{border-bottom:none}
+.day-meal-type{font-size:12px;font-weight:600;color:#059669;width:80px;flex-shrink:0}
+.day-meal-food{font-size:11px;color:#6b7280;flex:1;padding:0 8px}
+.day-meal-kcal{font-size:11px;font-weight:600;color:#374151;white-space:nowrap}
+.fasting-badge{display:inline-flex;align-items:center;gap:4px;background:#f4ecf7;color:#8b5cf6;padding:4px 10px;border-radius:8px;font-size:12px;font-weight:600}
+.login-screen{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(135deg,#059669,#0d9488);color:#fff;padding:20px;text-align:center}
+.login-screen h1{font-size:28px;font-weight:700;margin-bottom:8px}
+.login-screen p{font-size:14px;color:#a7f3d0;margin-bottom:30px;max-width:300px}
+.btn-google{display:flex;align-items:center;gap:10px;background:#fff;color:#374151;border:none;padding:12px 24px;border-radius:12px;font-size:15px;font-weight:600;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.15)}
+.btn-google:active{background:#f3f4f6}
+.btn-google svg{width:20px;height:20px}
+.loading{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:60vh;color:#6b7280}
+.spinner{width:32px;height:32px;border:3px solid #e5e7eb;border-top-color:#059669;border-radius:50%;animation:spin .8s linear infinite;margin-bottom:12px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.cat-pills{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}
+.cat-pill{padding:5px 10px;border-radius:16px;font-size:10px;font-weight:600;background:#f3f4f6;color:#6b7280;border:none;cursor:pointer}
 .cat-pill.active{background:#059669;color:#fff}
-.top-row{display:flex;gap:8px;align-items:center}
+.top-row{display:flex;gap:6px;align-items:center}
 .top-row select{flex:1}
-.btn-browse{padding:10px 14px;background:#f3f4f6;color:#6b7280;border:none;border-radius:10px;font-size:12px;font-weight:500;cursor:pointer;white-space:nowrap}
+.btn-browse{padding:9px 12px;background:#f3f4f6;color:#6b7280;border:none;border-radius:10px;font-size:11px;font-weight:500;cursor:pointer;white-space:nowrap}
 .btn-browse.active{background:#059669;color:#fff}
-.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);display:flex;align-items:flex-end;justify-content:center;z-index:100;padding:16px}
-.modal{background:#fff;border-radius:16px 16px 16px 16px;padding:20px;width:100%;max-width:440px;margin-bottom:env(safe-area-inset-bottom)}
-.modal h3{font-size:15px;font-weight:600;margin-bottom:12px}
-.modal .copy-field{width:100%;padding:14px;background:#ecfdf5;border:2px solid #a7f3d0;border-radius:10px;font-size:14px;text-align:center;color:#047857;font-family:monospace;font-weight:600}
-.modal .copy-field:focus{border-color:#059669;outline:none;box-shadow:0 0 0 3px rgba(5,150,105,.2)}
-.modal .hint{font-size:11px;color:#059669;text-align:center;margin-top:8px;font-weight:500}
-.no-results{text-align:center;padding:20px;color:#9ca3af;font-size:13px}
-.footer{text-align:center;font-size:11px;color:#9ca3af;padding:16px 0 max(16px,env(safe-area-inset-bottom))}
 .flex-between{display:flex;justify-content:space-between;align-items:center}
+.status-msg{text-align:center;font-size:11px;padding:6px;border-radius:8px;margin-bottom:8px}
+.status-ok{background:#ecfdf5;color:#059669}
+.status-err{background:#fef2f2;color:#ef4444}
+.tab-bar{display:flex;gap:4px;margin-bottom:12px}
+.tab{flex:1;padding:10px;text-align:center;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;border:1px solid #e5e7eb;background:#fff;color:#6b7280}
+.tab.active{background:#059669;color:#fff;border-color:#059669}
+.footer{text-align:center;font-size:10px;color:#9ca3af;padding:12px 0 max(12px,env(safe-area-inset-bottom))}
+.time-input{width:100px !important;text-align:center}
+.no-results{text-align:center;padding:16px;color:#9ca3af;font-size:12px}
 </style>
 </head>
 <body>
@@ -90,9 +104,18 @@ input:focus{border-color:#059669;box-shadow:0 0 0 3px rgba(5,150,105,.15)}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
 <script type="text/babel">
-const {useState,useMemo,useRef,useCallback}=React;
-function round1(n){return Math.round(n*10)/10}
+const {useState,useEffect,useMemo,useRef,useCallback}=React;
 
+// ==================== CONFIG ====================
+// IMPORTANT: Înlocuiește cu Client ID-ul tău din Google Cloud Console
+const CLIENT_ID = "343130440576-iui45d6baf096ks01dgpvg6usb21blj3.apps.googleusercontent.com";
+const API_KEY = "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";
+const SCOPES = "https://www.googleapis.com/auth/spreadsheets https://www.googleapis.com/auth/drive.file";
+const APP_PROPERTY = "macroTrackerApp";
+const YEAR = 2026;
+
+// ==================== FOOD DATABASE ====================
+function round1(n){return Math.round(n*10)/10}
 const FOODS=[
 {name:"Ou fiert",cat:"Proteine",cal:155,p:13,c:1.1,f:11},
 {name:"Ou ochi",cat:"Proteine",cal:196,p:13.6,c:0.8,f:15},
@@ -135,360 +158,501 @@ const FOODS=[
 {name:"Parmezan",cat:"Lactate",cal:392,p:36,c:3.2,f:26},
 {name:"Smântână 20%",cat:"Lactate",cal:204,p:2.5,c:3.4,f:20},
 {name:"Unt",cat:"Lactate",cal:717,p:0.9,c:0.1,f:81},
-{name:"Frișcă",cat:"Lactate",cal:340,p:2,c:2.8,f:37},
 {name:"Pâine albă",cat:"Cereale",cal:265,p:9,c:49,f:3.2},
 {name:"Pâine integrală",cat:"Cereale",cal:247,p:13,c:41,f:3.4},
-{name:"Pâine de secară",cat:"Cereale",cal:259,p:8.5,c:48,f:3.3},
 {name:"Orez alb fiert",cat:"Cereale",cal:130,p:2.7,c:28,f:0.3},
 {name:"Orez brun fiert",cat:"Cereale",cal:123,p:2.6,c:26,f:1},
 {name:"Paste fierte",cat:"Cereale",cal:131,p:5,c:25,f:1.1},
-{name:"Paste integrale fierte",cat:"Cereale",cal:124,p:5.3,c:25,f:0.5},
 {name:"Ovăz / fulgi de ovăz",cat:"Cereale",cal:389,p:17,c:66,f:6.9},
-{name:"Mălai",cat:"Cereale",cal:362,p:8.1,c:77,f:1.6},
 {name:"Mămăligă",cat:"Cereale",cal:70,p:1.6,c:15,f:0.3},
 {name:"Quinoa fiartă",cat:"Cereale",cal:120,p:4.4,c:21,f:1.9},
-{name:"Couscous fiert",cat:"Cereale",cal:112,p:3.8,c:23,f:0.2},
 {name:"Tortilla",cat:"Cereale",cal:312,p:8,c:52,f:8},
 {name:"Müsli",cat:"Cereale",cal:370,p:9,c:66,f:7},
-{name:"Cornflakes",cat:"Cereale",cal:357,p:7,c:84,f:0.4},
 {name:"Roșii",cat:"Legume",cal:18,p:0.9,c:3.9,f:0.2},
 {name:"Castraveți",cat:"Legume",cal:15,p:0.7,c:3.6,f:0.1},
 {name:"Ardei gras",cat:"Legume",cal:31,p:1,c:6,f:0.3},
 {name:"Ceapă",cat:"Legume",cal:40,p:1.1,c:9.3,f:0.1},
-{name:"Usturoi",cat:"Legume",cal:149,p:6.4,c:33,f:0.5},
 {name:"Morcovi",cat:"Legume",cal:41,p:0.9,c:10,f:0.2},
 {name:"Cartofi fierți",cat:"Legume",cal:87,p:1.9,c:20,f:0.1},
-{name:"Cartofi copți",cat:"Legume",cal:93,p:2.5,c:21,f:0.1},
 {name:"Cartofi prăjiți",cat:"Legume",cal:312,p:3.4,c:41,f:15},
-{name:"Cartof dulce",cat:"Legume",cal:86,p:1.6,c:20,f:0.1},
 {name:"Spanac",cat:"Legume",cal:23,p:2.9,c:3.6,f:0.4},
 {name:"Broccoli",cat:"Legume",cal:34,p:2.8,c:7,f:0.4},
 {name:"Conopidă",cat:"Legume",cal:25,p:1.9,c:5,f:0.3},
 {name:"Varză",cat:"Legume",cal:25,p:1.3,c:5.8,f:0.1},
-{name:"Varză murată",cat:"Legume",cal:19,p:0.9,c:4.3,f:0.1},
 {name:"Dovlecei",cat:"Legume",cal:17,p:1.2,c:3.1,f:0.3},
 {name:"Vinete",cat:"Legume",cal:25,p:1,c:6,f:0.2},
-{name:"Ciuperci champignon",cat:"Legume",cal:22,p:3.1,c:3.3,f:0.3},
-{name:"Fasole verde",cat:"Legume",cal:31,p:1.8,c:7,f:0.1},
-{name:"Gulii / Gulie",cat:"Legume",cal:27,p:1.7,c:6.2,f:0.1},
-{name:"Țelină",cat:"Legume",cal:14,p:0.7,c:3,f:0.2},
-{name:"Sfeclă",cat:"Legume",cal:43,p:1.6,c:10,f:0.2},
-{name:"Salată verde",cat:"Legume",cal:15,p:1.4,c:2.9,f:0.2},
-{name:"Porumb fiert",cat:"Legume",cal:96,p:3.4,c:21,f:1.5},
+{name:"Ciuperci",cat:"Legume",cal:22,p:3.1,c:3.3,f:0.3},
+{name:"Gulie",cat:"Legume",cal:27,p:1.7,c:6.2,f:0.1},
 {name:"Avocado",cat:"Legume",cal:160,p:2,c:8.5,f:15},
 {name:"Banană",cat:"Fructe",cal:89,p:1.1,c:23,f:0.3},
 {name:"Măr",cat:"Fructe",cal:52,p:0.3,c:14,f:0.2},
 {name:"Portocală",cat:"Fructe",cal:47,p:0.9,c:12,f:0.1},
-{name:"Mandarine",cat:"Fructe",cal:53,p:0.8,c:13,f:0.3},
-{name:"Struguri",cat:"Fructe",cal:69,p:0.7,c:18,f:0.2},
 {name:"Căpșuni",cat:"Fructe",cal:32,p:0.7,c:7.7,f:0.3},
-{name:"Cireșe",cat:"Fructe",cal:63,p:1.1,c:16,f:0.2},
-{name:"Pepene verde",cat:"Fructe",cal:30,p:0.6,c:7.6,f:0.2},
-{name:"Piersici",cat:"Fructe",cal:39,p:0.9,c:10,f:0.3},
-{name:"Pere",cat:"Fructe",cal:57,p:0.4,c:15,f:0.1},
 {name:"Kiwi",cat:"Fructe",cal:61,p:1.1,c:15,f:0.5},
-{name:"Ananas",cat:"Fructe",cal:50,p:0.5,c:13,f:0.1},
-{name:"Mango",cat:"Fructe",cal:60,p:0.8,c:15,f:0.4},
 {name:"Afine",cat:"Fructe",cal:57,p:0.7,c:14,f:0.3},
-{name:"Zmeură",cat:"Fructe",cal:52,p:1.2,c:12,f:0.7},
-{name:"Prune",cat:"Fructe",cal:46,p:0.7,c:11,f:0.3},
 {name:"Curmale",cat:"Fructe",cal:277,p:1.8,c:75,f:0.2},
-{name:"Stafide",cat:"Fructe",cal:299,p:3.1,c:79,f:0.5},
-{name:"Lămâie",cat:"Fructe",cal:29,p:1.1,c:9.3,f:0.3},
 {name:"Nuci",cat:"Nuci",cal:654,p:15,c:14,f:65},
 {name:"Migdale",cat:"Nuci",cal:579,p:21,c:22,f:50},
-{name:"Alune de pădure",cat:"Nuci",cal:628,p:15,c:17,f:61},
 {name:"Caju",cat:"Nuci",cal:553,p:18,c:30,f:44},
 {name:"Arahide",cat:"Nuci",cal:567,p:26,c:16,f:49},
 {name:"Unt de arahide",cat:"Nuci",cal:588,p:25,c:20,f:50},
 {name:"Semințe de floarea soarelui",cat:"Nuci",cal:584,p:21,c:20,f:51},
 {name:"Semințe de dovleac",cat:"Nuci",cal:559,p:30,c:11,f:49},
-{name:"Semințe de in",cat:"Nuci",cal:534,p:18,c:29,f:42},
 {name:"Semințe de chia",cat:"Nuci",cal:486,p:17,c:42,f:31},
-{name:"Susan",cat:"Nuci",cal:573,p:18,c:23,f:50},
-{name:"Tahini",cat:"Nuci",cal:595,p:17,c:21,f:54},
 {name:"Ulei de măsline",cat:"Grăsimi",cal:884,p:0,c:0,f:100},
-{name:"Ulei de floarea soarelui",cat:"Grăsimi",cal:884,p:0,c:0,f:100},
-{name:"Ulei de cocos",cat:"Grăsimi",cal:862,p:0,c:0,f:100},
 {name:"Ciocolată neagră 70%",cat:"Dulciuri",cal:598,p:7.8,c:46,f:43},
-{name:"Ciocolată cu lapte",cat:"Dulciuri",cal:535,p:7.6,c:59,f:30},
 {name:"Miere",cat:"Dulciuri",cal:304,p:0.3,c:82,f:0},
-{name:"Zahăr",cat:"Dulciuri",cal:387,p:0,c:100,f:0},
-{name:"Gem / dulceață",cat:"Dulciuri",cal:250,p:0.4,c:63,f:0.1},
-{name:"Biscuiți",cat:"Dulciuri",cal:480,p:6,c:65,f:22},
-{name:"Croissant",cat:"Dulciuri",cal:406,p:8,c:45,f:21},
-{name:"Covrigi",cat:"Dulciuri",cal:338,p:9,c:70,f:2},
 {name:"Cafea (fără zahăr)",cat:"Băuturi",cal:2,p:0.3,c:0,f:0},
 {name:"Cafea cu lapte",cat:"Băuturi",cal:30,p:1.5,c:2.4,f:1.5},
-{name:"Ceai (fără zahăr)",cat:"Băuturi",cal:1,p:0,c:0.3,f:0},
-{name:"Suc de portocale",cat:"Băuturi",cal:45,p:0.7,c:10,f:0.2},
-{name:"Smoothie fructe",cat:"Băuturi",cal:65,p:1,c:15,f:0.3},
-{name:"Bere",cat:"Băuturi",cal:43,p:0.5,c:3.6,f:0},
-{name:"Vin roșu",cat:"Băuturi",cal:85,p:0.1,c:2.6,f:0},
-{name:"Cola",cat:"Băuturi",cal:42,p:0,c:11,f:0},
+{name:"Ceai",cat:"Băuturi",cal:1,p:0,c:0.3,f:0},
 {name:"Ketchup",cat:"Sosuri",cal:112,p:1.7,c:26,f:0.1},
-{name:"Muștar",cat:"Sosuri",cal:66,p:4,c:6,f:3},
 {name:"Maioneză",cat:"Sosuri",cal:680,p:1,c:0.6,f:75},
-{name:"Sos de soia",cat:"Sosuri",cal:53,p:8,c:4.9,f:0.1},
 {name:"Pesto",cat:"Sosuri",cal:387,p:4,c:6,f:38},
-{name:"Sos de roșii / passata",cat:"Sosuri",cal:29,p:1.3,c:5.5,f:0.3},
-{name:"Dressing Caesar",cat:"Sosuri",cal:320,p:2.3,c:4,f:32},
-{name:"Oțet balsamic",cat:"Sosuri",cal:88,p:0.5,c:17,f:0},
+{name:"Sos de roșii",cat:"Sosuri",cal:29,p:1.3,c:5.5,f:0.3},
 {name:"Sarmale",cat:"Mâncăruri",cal:150,p:8,c:10,f:9},
 {name:"Ciorbă de legume",cat:"Mâncăruri",cal:35,p:1.5,c:6,f:0.5},
-{name:"Ciorbă de burtă",cat:"Mâncăruri",cal:50,p:4,c:3,f:2.5},
-{name:"Ciorbă de perișoare",cat:"Mâncăruri",cal:45,p:3,c:5,f:1.5},
 {name:"Supă de pui",cat:"Mâncăruri",cal:36,p:2.5,c:4,f:1},
 {name:"Mici / mititei",cat:"Mâncăruri",cal:240,p:17,c:3,f:18},
 {name:"Pizza Margherita",cat:"Mâncăruri",cal:266,p:11,c:33,f:10},
 {name:"Shaorma",cat:"Mâncăruri",cal:215,p:12,c:18,f:10},
-{name:"Salată Caesar",cat:"Mâncăruri",cal:127,p:7,c:7,f:8},
 {name:"Omletă (2 ouă)",cat:"Mâncăruri",cal:154,p:11,c:0.7,f:12},
 {name:"Clătite",cat:"Mâncăruri",cal:227,p:6,c:28,f:10},
-{name:"Tocăniță de legume",cat:"Mâncăruri",cal:55,p:1.5,c:8,f:2},
 {name:"Pilaf de orez",cat:"Mâncăruri",cal:145,p:3,c:25,f:3.5},
 ];
-
 const CATEGORIES=[...new Set(FOODS.map(f=>f.cat))];
-const MEAL_TYPES=["Mic dejun","Gustare AM","Prânz","Gustare PM","Cină","Gustare seară"];
+const MEALS=["Mic dejun","Gustare 1","Gustare 2","Prânz","Gustare 3","Gustare 4","Cină","Gustare 5","Gustare 6"];
+const MONTHS_RO=["","Ianuarie","Februarie","Martie","Aprilie","Mai","Iunie","Iulie","August","Septembrie","Octombrie","Noiembrie","Decembrie"];
+const ROWS_PER_DAY=11; // 9 meals + total + separator
 
-function calcMacros(food,grams){
-  const r=grams/100;
-  return{calories:Math.round(food.cal*r),protein:round1(food.p*r),carbs:round1(food.c*r),fat:round1(food.f*r)};
+function calcMacros(food,grams){const r=grams/100;return{calories:Math.round(food.cal*r),protein:round1(food.p*r),carbs:round1(food.c*r),fat:round1(food.f*r)}}
+function getSheetName(month){return `${MONTHS_RO[month]} ${YEAR}`}
+function getMealRow(day,mealIndex){return 3+(day-1)*ROWS_PER_DAY+mealIndex}
+function getTotalRow(day){return 3+(day-1)*ROWS_PER_DAY+9}
+function MacroBar({protein,carbs,fat}){const t=protein+carbs+fat||1;return(<div className="macro-bar"><div className="prot" style={{width:`${(protein/t)*100}%`}}/><div className="carb" style={{width:`${(carbs/t)*100}%`}}/><div className="fat" style={{width:`${(fat/t)*100}%`}}/></div>)}
+
+// ==================== GOOGLE API HELPERS ====================
+let tokenClient = null;
+let gapiInited = false;
+let gisInited = false;
+
+async function initGapi(){
+  await new Promise((resolve)=>{gapi.load('client',resolve)});
+  await gapi.client.init({apiKey:API_KEY,discoveryDocs:["https://sheets.googleapis.com/$discovery/rest?version=v4","https://www.googleapis.com/discovery/v1/apis/drive/v3/rest"]});
+  gapiInited=true;
 }
 
-function MacroBar({protein,carbs,fat}){
-  const total=protein+carbs+fat||1;
-  return(
-    <div className="macro-bar">
-      <div className="prot" style={{width:`${(protein/total)*100}%`}}/>
-      <div className="carb" style={{width:`${(carbs/total)*100}%`}}/>
-      <div className="fat" style={{width:`${(fat/total)*100}%`}}/>
-    </div>
-  );
+function initGis(onToken){
+  tokenClient=google.accounts.oauth2.initTokenClient({client_id:CLIENT_ID,scope:SCOPES,callback:(resp)=>{if(resp.error)return;onToken(resp)}});
+  gisInited=true;
 }
 
+function requestToken(){tokenClient.requestAccessToken()}
+function revokeToken(){const token=gapi.client.getToken();if(token){google.accounts.oauth2.revoke(token.access_token);gapi.client.setToken(null)}}
+
+async function findSpreadsheet(){
+  const resp=await gapi.client.drive.files.list({q:`appProperties has { key='${APP_PROPERTY}' and value='true' } and mimeType='application/vnd.google-apps.spreadsheet' and trashed=false`,fields:'files(id,name)',pageSize:1});
+  return resp.result.files&&resp.result.files[0]?resp.result.files[0].id:null;
+}
+
+async function createSpreadsheet(){
+  const months=[];
+  for(let m=4;m<=12;m++){
+    const daysInMonth=new Date(YEAR,m,0).getDate();
+    const totalRows=2+daysInMonth*ROWS_PER_DAY;
+    const rows=[];
+    // Header row
+    rows.push({values:["Data","Ora","Tipul Mesei","Ce am mâncat","Cantitate","Notițe","Calorii (kcal)","Proteine (g)","Carbohidrați (g)","Grăsimi (g)","Fasting (ore)"].map(v=>({userEnteredValue:{stringValue:v}}))});
+    const daysRo=["Duminică","Luni","Marți","Miercuri","Joi","Vineri","Sâmbătă"];
+    for(let d=1;d<=daysInMonth;d++){
+      const dt=new Date(YEAR,m-1,d);
+      const dayName=daysRo[dt.getDay()];
+      const dateStr=`${String(d).padStart(2,'0')}.${String(m).padStart(2,'0')} (${dayName})`;
+      for(let mi=0;mi<MEALS.length;mi++){
+        const row={values:[]};
+        row.values.push({userEnteredValue:{stringValue:mi===0?dateStr:""}});
+        for(let c=1;c<11;c++)row.values.push({userEnteredValue:{stringValue:c===2?MEALS[mi]:""}});
+        rows.push(row);
+      }
+      // Total row
+      const startR=2+(d-1)*ROWS_PER_DAY+1;
+      const endR=startR+8;
+      const tRow={values:[
+        {userEnteredValue:{stringValue:""}},
+        {userEnteredValue:{stringValue:`Total ${dateStr}`}},
+        {userEnteredValue:{stringValue:""}},{userEnteredValue:{stringValue:""}},
+        {userEnteredValue:{stringValue:""}},{userEnteredValue:{stringValue:""}},
+        {userEnteredValue:{formulaValue:`=SUM(G${startR}:G${endR})`}},
+        {userEnteredValue:{formulaValue:`=SUM(H${startR}:H${endR})`}},
+        {userEnteredValue:{formulaValue:`=SUM(I${startR}:I${endR})`}},
+        {userEnteredValue:{formulaValue:`=SUM(J${startR}:J${endR})`}},
+        {userEnteredValue:{stringValue:""}},
+      ]};
+      rows.push(tRow);
+      // Separator
+      rows.push({values:[{userEnteredValue:{stringValue:""}}]});
+    }
+    months.push({properties:{title:getSheetName(m)},data:[{startRow:1,startColumn:0,rowData:rows}]});
+  }
+  // Title row added to first sheet
+  const resp=await gapi.client.sheets.spreadsheets.create({resource:{
+    properties:{title:"Jurnal Alimentar - Macro Tracker"},
+    sheets:months
+  }});
+  const ssId=resp.result.spreadsheetId;
+  // Set app property on the file
+  await gapi.client.drive.files.update({fileId:ssId,resource:{appProperties:{[APP_PROPERTY]:"true"}}});
+  return ssId;
+}
+
+async function readDayData(ssId,month,day){
+  const sheet=getSheetName(month);
+  const startRow=getMealRow(day,0);
+  const endRow=startRow+8;
+  const range=`'${sheet}'!A${startRow}:K${endRow+2}`;
+  try{
+    const resp=await gapi.client.sheets.spreadsheets.values.get({spreadsheetId:ssId,range});
+    return resp.result.values||[];
+  }catch(e){return[]}
+}
+
+async function writeMeal(ssId,month,day,mealIndex,time,foodDesc,quantity,cal,prot,carbs,fat){
+  const sheet=getSheetName(month);
+  const row=getMealRow(day,mealIndex);
+  const range=`'${sheet}'!B${row}:J${row}`;
+  await gapi.client.sheets.spreadsheets.values.update({
+    spreadsheetId:ssId,range,valueInputOption:"USER_ENTERED",
+    resource:{values:[[time,MEALS[mealIndex],foodDesc,quantity,"",cal,prot,carbs,fat]]}
+  });
+}
+
+async function readFasting(ssId,month,day){
+  const sheet=getSheetName(month);
+  const row=getTotalRow(day);
+  const range=`'${sheet}'!K${row}`;
+  try{const resp=await gapi.client.sheets.spreadsheets.values.get({spreadsheetId:ssId,range});return resp.result.values?.[0]?.[0]||null}catch{return null}
+}
+
+// ==================== MAIN APP ====================
 function App(){
+  const[authState,setAuthState]=useState("loading"); // loading|login|ready
+  const[user,setUser]=useState(null);
+  const[ssId,setSsId]=useState(null);
+  const[tab,setTab]=useState("add"); // add|history
+  const[status,setStatus]=useState(null);
+  const[selectedDate,setSelectedDate]=useState(new Date());
+  const[mealIndex,setMealIndex]=useState(0);
+  const[mealTime,setMealTime]=useState("");
   const[query,setQuery]=useState("");
   const[selectedFood,setSelectedFood]=useState(null);
   const[grams,setGrams]=useState(100);
   const[meal,setMeal]=useState([]);
-  const[mealType,setMealType]=useState("Mic dejun");
-  const[dayMeals,setDayMeals]=useState([]);
+  const[saving,setSaving]=useState(false);
+  const[dayData,setDayData]=useState([]);
+  const[fasting,setFasting]=useState(null);
   const[catFilter,setCatFilter]=useState("");
   const[showBrowse,setShowBrowse]=useState(false);
-  const[copyModal,setCopyModal]=useState(null);
-  const copyRef=useRef(null);
+  const[loadingDay,setLoadingDay]=useState(false);
+
+  const currentMonth=selectedDate.getMonth()+1;
+  const currentDay=selectedDate.getDate();
+  const dayName=selectedDate.toLocaleDateString("ro-RO",{weekday:"long"});
+  const dateLabel=`${currentDay} ${MONTHS_RO[currentMonth]} ${YEAR}`;
+
+  // Auto-set time
+  useEffect(()=>{
+    const now=new Date();
+    setMealTime(`${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`);
+  },[mealIndex]);
+
+  // Init Google APIs
+  useEffect(()=>{
+    const init=async()=>{
+      try{
+        await initGapi();
+        initGis(async(resp)=>{
+          // Decode JWT to get user info
+          const parts=resp.access_token;
+          try{
+            const userInfo=await fetch('https://www.googleapis.com/oauth2/v3/userinfo',{headers:{Authorization:`Bearer ${resp.access_token}`}});
+            const data=await userInfo.json();
+            setUser({name:data.name,email:data.email,picture:data.picture});
+          }catch{}
+          // Find or create spreadsheet
+          setStatus({type:"ok",msg:"Caut jurnalul în Drive..."});
+          let id=await findSpreadsheet();
+          if(!id){
+            setStatus({type:"ok",msg:"Creez jurnalul alimentar..."});
+            id=await createSpreadsheet();
+          }
+          setSsId(id);
+          setStatus(null);
+          setAuthState("ready");
+        });
+        // Check if already have a token
+        const token=gapi.client.getToken();
+        if(token){setAuthState("ready")}else{setAuthState("login")}
+      }catch(e){setAuthState("login")}
+    };
+    const interval=setInterval(()=>{
+      if(typeof google!=='undefined'&&typeof gapi!=='undefined'){
+        clearInterval(interval);
+        init();
+      }
+    },100);
+    return()=>clearInterval(interval);
+  },[]);
+
+  // Load day data when date changes or tab switches
+  useEffect(()=>{
+    if(authState!=="ready"||!ssId)return;
+    if(currentMonth<4||currentMonth>12)return;
+    const load=async()=>{
+      setLoadingDay(true);
+      const data=await readDayData(ssId,currentMonth,currentDay);
+      setDayData(data);
+      const f=await readFasting(ssId,currentMonth,currentDay);
+      setFasting(f);
+      setLoadingDay(false);
+    };
+    load();
+  },[authState,ssId,selectedDate,tab]);
 
   const results=useMemo(()=>{
     if(!query&&!catFilter)return[];
     let filtered=FOODS;
     if(catFilter)filtered=filtered.filter(f=>f.cat===catFilter);
-    if(query){
-      const q=query.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"");
-      filtered=filtered.filter(f=>{
-        const name=f.name.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"");
-        return name.includes(q);
-      });
-    }
-    return filtered.slice(0,20);
+    if(query){const q=query.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"");filtered=filtered.filter(f=>f.name.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").includes(q))}
+    return filtered.slice(0,15);
   },[query,catFilter]);
 
   const selectFood=(food)=>{setSelectedFood(food);setGrams(100);setQuery(food.name);setShowBrowse(false);setCatFilter("")};
   const addToMeal=()=>{if(!selectedFood)return;const macros=calcMacros(selectedFood,grams);setMeal(prev=>[...prev,{food:selectedFood,grams,macros}]);setSelectedFood(null);setQuery("");setGrams(100)};
   const removeFromMeal=(idx)=>setMeal(prev=>prev.filter((_,i)=>i!==idx));
-
   const mealTotals=meal.reduce((a,item)=>({calories:a.calories+item.macros.calories,protein:round1(a.protein+item.macros.protein),carbs:round1(a.carbs+item.macros.carbs),fat:round1(a.fat+item.macros.fat)}),{calories:0,protein:0,carbs:0,fat:0});
 
-  const saveMeal=()=>{if(!meal.length)return;setDayMeals(prev=>[...prev,{type:mealType,items:[...meal],totals:{...mealTotals}}]);setMeal([]);const idx=MEAL_TYPES.indexOf(mealType);if(idx<MEAL_TYPES.length-1)setMealType(MEAL_TYPES[idx+1])};
-  const removeDayMeal=(idx)=>setDayMeals(prev=>prev.filter((_,i)=>i!==idx));
+  const saveMealToSheet=async()=>{
+    if(!meal.length||!ssId||!mealTime)return;
+    setSaving(true);
+    try{
+      const foodDesc=meal.map(it=>`${it.food.name} (${it.grams}g)`).join(", ");
+      const qty=meal.map(it=>`${it.grams}g`).join(", ");
+      await writeMeal(ssId,currentMonth,currentDay,mealIndex,mealTime,foodDesc,qty,
+        mealTotals.calories,mealTotals.protein,mealTotals.carbs,mealTotals.fat);
+      setStatus({type:"ok",msg:`${MEALS[mealIndex]} salvat!`});
+      setMeal([]);
+      // Move to next meal type
+      if(mealIndex<MEALS.length-1)setMealIndex(mealIndex+1);
+      // Refresh day data
+      const data=await readDayData(ssId,currentMonth,currentDay);
+      setDayData(data);
+      setTimeout(()=>setStatus(null),2000);
+    }catch(e){
+      setStatus({type:"err",msg:"Eroare la salvare: "+e.message});
+    }
+    setSaving(false);
+  };
 
-  const dayTotals=dayMeals.reduce((a,m)=>({calories:a.calories+m.totals.calories,protein:round1(a.protein+m.totals.protein),carbs:round1(a.carbs+m.totals.carbs),fat:round1(a.fat+m.totals.fat)}),{calories:0,protein:0,carbs:0,fat:0});
-
-  const openCopy=(totals)=>setCopyModal(totals);
-  const selectCopy=useCallback(()=>{if(copyRef.current)copyRef.current.select()},[]);
+  const changeDate=(delta)=>{
+    const d=new Date(selectedDate);
+    d.setDate(d.getDate()+delta);
+    if(d.getFullYear()===YEAR&&d.getMonth()>=3&&d.getMonth()<=11)setSelectedDate(d);
+  };
+  const goToday=()=>setSelectedDate(new Date());
+  const handleLogout=()=>{revokeToken();setAuthState("login");setUser(null);setSsId(null)};
 
   const preview=selectedFood?calcMacros(selectedFood,grams):null;
 
+  // ==================== LOGIN SCREEN ====================
+  if(authState==="loading")return(<div className="loading"><div className="spinner"/><div>Se încarcă...</div></div>);
+  if(authState==="login")return(
+    <div className="login-screen">
+      <h1>Macro Tracker</h1>
+      <p>Jurnal alimentar cu calcul automat de macronutrienți și intermittent fasting</p>
+      <button className="btn-google" onClick={requestToken}>
+        <svg viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+        Loghează-te cu Google
+      </button>
+    </div>
+  );
+
+  // ==================== MAIN APP ====================
   return(
     <div>
       <div className="header">
-        <h1>Macro Tracker</h1>
-        <p>{new Date().toLocaleDateString("ro-RO",{weekday:"long",day:"numeric",month:"long",year:"numeric"})} · {FOODS.length} alimente</p>
-      </div>
-
-      <div className="container">
-        {/* Search */}
-        <div className="card">
-          <div className="top-row">
-            <select value={mealType} onChange={e=>setMealType(e.target.value)}>
-              {MEAL_TYPES.map(t=><option key={t}>{t}</option>)}
-            </select>
-            <button className={`btn-browse${showBrowse?" active":""}`} onClick={()=>{setShowBrowse(!showBrowse);setQuery("");setCatFilter("");setSelectedFood(null)}}>
-              {showBrowse?"Închide":"Categorii"}
-            </button>
+        <div className="header-row">
+          <div>
+            <h1>Macro Tracker</h1>
+            <div className="sub">{dateLabel}, {dayName}</div>
           </div>
-
-          <div className="search-wrap">
-            <input type="text" value={query} onChange={e=>{setQuery(e.target.value);setSelectedFood(null);setShowBrowse(false);setCatFilter("")}} placeholder="Caută aliment (ex: tofu, ou, banană)..." />
-          </div>
-
-          {showBrowse&&!selectedFood&&(
-            <div className="cat-pills">
-              {CATEGORIES.map(cat=>(
-                <button key={cat} className={`cat-pill${catFilter===cat?" active":""}`} onClick={()=>setCatFilter(catFilter===cat?"":cat)}>{cat}</button>
-              ))}
-            </div>
-          )}
-
-          {results.length>0&&!selectedFood&&(
-            <div className="results">
-              {results.map((food,i)=>(
-                <div key={i} className="result-item" onClick={()=>selectFood(food)}>
-                  <div><span className="result-name">{food.name}</span><span className="result-cat">{food.cat}</span></div>
-                  <div className="result-macros">{food.cal} kcal · P <span className="blue">{food.p}g</span> · C <span className="amber">{food.c}g</span> · G <span className="red">{food.f}g</span> /100g</div>
-                </div>
-              ))}
-            </div>
-          )}
-
-          {query&&results.length===0&&!selectedFood&&<div className="no-results">Niciun rezultat pentru "{query}"</div>}
-
-          {selectedFood&&(
-            <div className="selected-food">
-              <div className="flex-between">
-                <div><strong>{selectedFood.name}</strong> <span className="result-cat">{selectedFood.cat}</span></div>
-                <button className="remove-btn" onClick={()=>{setSelectedFood(null);setQuery("")}}>&times;</button>
+          {user&&(
+            <div className="user-pill">
+              {user.picture&&<img src={user.picture} alt=""/>}
+              <div>
+                <div style={{fontWeight:600,fontSize:11}}>{user.name?.split(' ')[0]}</div>
+                <button className="btn-logout" onClick={handleLogout}>Ieși</button>
               </div>
-
-              <div className="qty-row">
-                <label>Cantitate:</label>
-                <input type="number" value={grams} onChange={e=>setGrams(Math.max(0,Number(e.target.value)))} style={{width:70}} />
-                <span style={{fontSize:13,color:'#6b7280'}}>g</span>
-              </div>
-              <div className="qty-buttons">
-                {[25,50,100,150,200,300].map(g=>(
-                  <button key={g} className={`qty-btn${grams===g?" active":""}`} onClick={()=>setGrams(g)}>{g}g</button>
-                ))}
-              </div>
-
-              {preview&&(
-                <div className="macro-grid">
-                  <div className="macro-box"><div className="macro-val">{preview.calories}</div><div className="macro-unit">kcal</div></div>
-                  <div className="macro-box"><div className="macro-val blue">{preview.protein}g</div><div className="macro-unit">Proteine</div></div>
-                  <div className="macro-box"><div className="macro-val amber">{preview.carbs}g</div><div className="macro-unit">Carbs</div></div>
-                  <div className="macro-box"><div className="macro-val red">{preview.fat}g</div><div className="macro-unit">Grăsimi</div></div>
-                </div>
-              )}
-
-              <button className="btn-primary" onClick={addToMeal}>+ Adaugă la {mealType.toLowerCase()}</button>
             </div>
           )}
         </div>
+      </div>
 
-        {/* Current Meal */}
-        {meal.length>0&&(
-          <div className="card">
-            <div className="flex-between" style={{marginBottom:12}}>
-              <h2>{mealType}</h2>
-              <button className="btn-save" onClick={saveMeal}>Salvează masa</button>
+      <div className="container">
+        {status&&<div className={`status-msg ${status.type==="ok"?"status-ok":"status-err"}`}>{status.msg}</div>}
+
+        {/* Tabs */}
+        <div className="tab-bar">
+          <div className={`tab${tab==="add"?" active":""}`} onClick={()=>setTab("add")}>Adaugă masă</div>
+          <div className={`tab${tab==="history"?" active":""}`} onClick={()=>setTab("history")}>Ziua de azi</div>
+        </div>
+
+        {/* Date Navigation */}
+        <div className="nav-date">
+          <button className="nav-btn" onClick={()=>changeDate(-1)}>&lt;</button>
+          <div className="current">{currentDay} {MONTHS_RO[currentMonth]}</div>
+          <button className="today-btn" onClick={goToday}>Azi</button>
+          <button className="nav-btn" onClick={()=>changeDate(1)}>&gt;</button>
+        </div>
+
+        {tab==="add"&&(
+          <>
+            {/* Meal Type + Time */}
+            <div className="card">
+              <div className="top-row" style={{marginBottom:8}}>
+                <select value={mealIndex} onChange={e=>setMealIndex(Number(e.target.value))}>
+                  {MEALS.map((m,i)=><option key={i} value={i}>{m}</option>)}
+                </select>
+                <input type="time" value={mealTime} onChange={e=>setMealTime(e.target.value)} className="time-input" style={{width:100}}/>
+              </div>
+
+              {/* Search */}
+              <input type="text" value={query} onChange={e=>{setQuery(e.target.value);setSelectedFood(null);setShowBrowse(false);setCatFilter("")}} placeholder="Caută aliment..." />
+
+              <div style={{display:'flex',justifyContent:'flex-end',marginTop:6}}>
+                <button className={`btn-browse${showBrowse?" active":""}`} onClick={()=>{setShowBrowse(!showBrowse);setQuery("");setCatFilter("");setSelectedFood(null)}}>
+                  {showBrowse?"Închide":"Categorii"}
+                </button>
+              </div>
+
+              {showBrowse&&!selectedFood&&(
+                <div className="cat-pills">
+                  {CATEGORIES.map(cat=><button key={cat} className={`cat-pill${catFilter===cat?" active":""}`} onClick={()=>setCatFilter(catFilter===cat?"":cat)}>{cat}</button>)}
+                </div>
+              )}
+
+              {results.length>0&&!selectedFood&&(
+                <div className="results">
+                  {results.map((food,i)=>(
+                    <div key={i} className="result-item" onClick={()=>selectFood(food)}>
+                      <div><span className="result-name">{food.name}</span><span className="result-cat">{food.cat}</span></div>
+                      <div className="result-macros">{food.cal} kcal · P <span className="blue">{food.p}g</span> · C <span className="amber">{food.c}g</span> · G <span className="red">{food.f}g</span></div>
+                    </div>
+                  ))}
+                </div>
+              )}
+              {query&&results.length===0&&!selectedFood&&<div className="no-results">Niciun rezultat</div>}
+
+              {selectedFood&&(
+                <div className="selected-food">
+                  <div className="flex-between">
+                    <div><strong>{selectedFood.name}</strong><span className="result-cat">{selectedFood.cat}</span></div>
+                    <button className="remove-btn" onClick={()=>{setSelectedFood(null);setQuery("")}}>&times;</button>
+                  </div>
+                  <div className="qty-row">
+                    <label>Cantitate:</label>
+                    <input type="number" value={grams} onChange={e=>setGrams(Math.max(0,Number(e.target.value)))} style={{width:65}}/>
+                    <span style={{fontSize:12,color:'#6b7280'}}>g</span>
+                    {[25,50,100,150,200,300].map(g=><button key={g} className={`qty-btn${grams===g?" active":""}`} onClick={()=>setGrams(g)}>{g}g</button>)}
+                  </div>
+                  {preview&&(
+                    <div className="macro-grid">
+                      <div className="macro-box"><div className="macro-val">{preview.calories}</div><div className="macro-unit">kcal</div></div>
+                      <div className="macro-box"><div className="macro-val blue">{preview.protein}g</div><div className="macro-unit">Proteine</div></div>
+                      <div className="macro-box"><div className="macro-val amber">{preview.carbs}g</div><div className="macro-unit">Carbs</div></div>
+                      <div className="macro-box"><div className="macro-val red">{preview.fat}g</div><div className="macro-unit">Grăsimi</div></div>
+                    </div>
+                  )}
+                  <button className="btn-primary" onClick={addToMeal}>+ Adaugă la masă</button>
+                </div>
+              )}
             </div>
 
-            {meal.map((item,i)=>(
-              <div key={i} className="meal-item">
-                <div><span className="meal-item-name">{item.food.name}</span><span className="meal-item-g">{item.grams}g</span></div>
-                <div className="meal-item-macros">
-                  <span>{item.macros.calories}</span>
-                  <span className="blue">P{item.macros.protein}</span>
-                  <span className="amber">C{item.macros.carbs}</span>
-                  <span className="red">G{item.macros.fat}</span>
-                  <button className="remove-btn" onClick={()=>removeFromMeal(i)}>&times;</button>
+            {/* Current Meal Composition */}
+            {meal.length>0&&(
+              <div className="card">
+                <div className="flex-between" style={{marginBottom:8}}>
+                  <h2>{MEALS[mealIndex]} · {mealTime}</h2>
+                </div>
+                {meal.map((item,i)=>(
+                  <div key={i} className="meal-item">
+                    <div><span className="meal-item-name">{item.food.name}</span><span className="meal-item-g">{item.grams}g</span></div>
+                    <div className="meal-item-macros">
+                      <span>{item.macros.calories}</span>
+                      <span className="blue">P{item.macros.protein}</span>
+                      <span className="amber">C{item.macros.carbs}</span>
+                      <span className="red">G{item.macros.fat}</span>
+                      <button className="remove-btn" onClick={()=>removeFromMeal(i)}>&times;</button>
+                    </div>
+                  </div>
+                ))}
+                <MacroBar protein={mealTotals.protein} carbs={mealTotals.carbs} fat={mealTotals.fat}/>
+                <div className="total-row">
+                  <span>Total: {mealTotals.calories} kcal</span>
+                  <button className="btn-save" onClick={saveMealToSheet} disabled={saving||!mealTime}>
+                    {saving?"Salvez...":"Salvează în Sheet"}
+                  </button>
                 </div>
               </div>
-            ))}
-
-            <MacroBar protein={mealTotals.protein} carbs={mealTotals.carbs} fat={mealTotals.fat} />
-            <div className="bar-legend">
-              <span className="blue">Proteine {mealTotals.protein}g</span>
-              <span className="amber">Carbs {mealTotals.carbs}g</span>
-              <span className="red">Grăsimi {mealTotals.fat}g</span>
-            </div>
-
-            <div className="total-row">
-              <span>Total: {mealTotals.calories} kcal</span>
-              <button className="btn-copy" onClick={()=>openCopy(mealTotals)}>Copiază pt Sheet</button>
-            </div>
-          </div>
+            )}
+          </>
         )}
 
-        {/* Day Summary */}
-        {dayMeals.length>0&&(
+        {tab==="history"&&(
           <div className="card">
-            <div className="flex-between" style={{marginBottom:12}}>
-              <h2>Sumar zilnic</h2>
-              <button className="btn-copy" onClick={()=>openCopy(dayTotals)}>Copiază total zi</button>
+            <div className="flex-between" style={{marginBottom:10}}>
+              <h2>Mesele din {currentDay} {MONTHS_RO[currentMonth]}</h2>
+              {fasting&&fasting!=="—"&&fasting!==""&&<div className="fasting-badge">⏱ {fasting}h fasting</div>}
             </div>
-
-            {dayMeals.map((m,i)=>(
-              <div key={i} className="day-meal">
-                <div className="day-meal-header">
-                  <span className="day-meal-type">{m.type}</span>
-                  <div style={{display:'flex',alignItems:'center',gap:8}}>
-                    <span className="day-meal-cal">{m.totals.calories} kcal</span>
-                    <button className="btn-copy" style={{padding:'4px 8px'}} onClick={()=>openCopy(m.totals)}>Copiază</button>
-                    <button className="remove-btn" onClick={()=>removeDayMeal(i)}>&times;</button>
+            {loadingDay?<div className="loading" style={{minHeight:'20vh'}}><div className="spinner"/></div>:(
+              <div className="day-meals">
+                {dayData.slice(0,9).map((row,i)=>{
+                  const food=row?.[3]||"";
+                  const time=row?.[1]||"";
+                  const cal=row?.[6]||"";
+                  if(!food&&!time)return(
+                    <div key={i} className="day-meal-row" style={{opacity:.4}}>
+                      <div className="day-meal-type">{MEALS[i]}</div>
+                      <div className="day-meal-food" style={{fontStyle:'italic'}}>—</div>
+                      <div className="day-meal-kcal"></div>
+                    </div>
+                  );
+                  return(
+                    <div key={i} className="day-meal-row">
+                      <div className="day-meal-type">{MEALS[i]}</div>
+                      <div className="day-meal-food">{time?`${time} · `:""}{food}</div>
+                      <div className="day-meal-kcal">{cal?`${cal} kcal`:""}</div>
+                    </div>
+                  );
+                })}
+                {/* Day total */}
+                {dayData[9]&&(
+                  <div style={{marginTop:8,padding:'10px 12px',background:'linear-gradient(135deg,#ecfdf5,#f0fdfa)',borderRadius:10}}>
+                    <div className="macro-grid">
+                      <div className="macro-box"><div className="macro-val">{dayData[9]?.[6]||0}</div><div className="macro-unit">kcal</div></div>
+                      <div className="macro-box"><div className="macro-val blue">{dayData[9]?.[7]||0}g</div><div className="macro-unit">Proteine</div></div>
+                      <div className="macro-box"><div className="macro-val amber">{dayData[9]?.[8]||0}g</div><div className="macro-unit">Carbs</div></div>
+                      <div className="macro-box"><div className="macro-val red">{dayData[9]?.[9]||0}g</div><div className="macro-unit">Grăsimi</div></div>
+                    </div>
                   </div>
-                </div>
-                <div className="day-meal-items">{m.items.map(it=>`${it.food.name} (${it.grams}g)`).join(", ")}</div>
-                <div className="day-meal-macros">P <span className="blue">{m.totals.protein}g</span> · C <span className="amber">{m.totals.carbs}g</span> · G <span className="red">{m.totals.fat}g</span></div>
+                )}
               </div>
-            ))}
-
-            <div className="day-total">
-              <div className="day-total-label">Total zi</div>
-              <div className="macro-grid">
-                <div className="macro-box"><div className="macro-val">{dayTotals.calories}</div><div className="macro-unit">kcal</div></div>
-                <div className="macro-box"><div className="macro-val blue">{dayTotals.protein}g</div><div className="macro-unit">prot</div></div>
-                <div className="macro-box"><div className="macro-val amber">{dayTotals.carbs}g</div><div className="macro-unit">carbs</div></div>
-                <div className="macro-box"><div className="macro-val red">{dayTotals.fat}g</div><div className="macro-unit">fat</div></div>
-              </div>
-              <MacroBar protein={dayTotals.protein} carbs={dayTotals.carbs} fat={dayTotals.fat} />
-            </div>
+            )}
           </div>
         )}
 
         <div className="footer">
-          <div style={{marginBottom:4}}>
-            <span style={{display:'inline-block',width:8,height:8,borderRadius:4,background:'#3b82f6',marginRight:3}}></span> Proteine
-            <span style={{display:'inline-block',width:8,height:8,borderRadius:4,background:'#fbbf24',margin:'0 3px 0 10px'}}></span> Carbohidrați
-            <span style={{display:'inline-block',width:8,height:8,borderRadius:4,background:'#f87171',margin:'0 3px 0 10px'}}></span> Grăsimi
-          </div>
-          Valori nutriționale per 100g · Estimative
+          Macro Tracker · Datele se salvează în Google Sheets
         </div>
       </div>
-
-      {/* Copy Modal */}
-      {copyModal&&(
-        <div className="modal-overlay" onClick={()=>setCopyModal(null)}>
-          <div className="modal" onClick={e=>e.stopPropagation()}>
-            <div className="flex-between">
-              <h3>Copiază pentru Google Sheets</h3>
-              <button className="remove-btn" onClick={()=>setCopyModal(null)}>&times;</button>
-            </div>
-            <p style={{fontSize:12,color:'#6b7280',marginBottom:12}}>Apasă lung pe text, selectează tot, copiază. Lipește în celula Calorii din Sheet — valorile se distribuie pe 4 coloane.</p>
-            <div className="macro-grid" style={{marginBottom:12}}>
-              <div className="macro-box"><div style={{fontWeight:700}}>{copyModal.calories}</div><div className="macro-unit">kcal</div></div>
-              <div className="macro-box"><div style={{fontWeight:700}} className="blue">{copyModal.protein}g</div><div className="macro-unit">prot</div></div>
-              <div className="macro-box"><div style={{fontWeight:700}} className="amber">{copyModal.carbs}g</div><div className="macro-unit">carbs</div></div>
-              <div className="macro-box"><div style={{fontWeight:700}} className="red">{copyModal.fat}g</div><div className="macro-unit">fat</div></div>
-            </div>
-            <input ref={copyRef} type="text" readOnly className="copy-field"
-              value={`${copyModal.calories}\t${copyModal.protein}\t${copyModal.carbs}\t${copyModal.fat}`}
-              onClick={selectCopy} onFocus={selectCopy} />
-            <div className="hint">Apasă pe câmp → Selectează tot → Copiază</div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
