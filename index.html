@@ -399,58 +399,74 @@ async function readExercise(ssId,month,day){
 }
 
 async function readFasting(ssId,month,day){
-  // Calculate fasting: time between last meal (any previous day) and first meal today
+  // Optimized: read ALL meal times from current month in ONE API call
+  // Then optionally one more call for previous month if needed
   try{
     const sheet=getSheetName(month);
-    // Get first meal time today
-    const todayStart=getMealRow(day,0);
-    const todayEnd=getMealRow(day,8);
-    const todayResp=await gapi.client.sheets.spreadsheets.values.get({spreadsheetId:ssId,range:`'${sheet}'!B${todayStart}:B${todayEnd}`});
-    const todayTimes=todayResp.result.values||[];
-    let firstMealToday=null;
-    for(let i=0;i<todayTimes.length;i++){
-      if(todayTimes[i]&&todayTimes[i][0]&&todayTimes[i][0].trim()!==""){firstMealToday={mealIdx:i,time:todayTimes[i][0].trim()};break;}
+    const daysInMonth=new Date(YEAR,month,0).getDate();
+    // Read column B (Ora) for ALL days in this month at once
+    const lastRow=getMealRow(daysInMonth,8);
+    const allResp=await gapi.client.sheets.spreadsheets.values.get({
+      spreadsheetId:ssId,range:`'${sheet}'!B3:B${lastRow}`,majorDimension:"COLUMNS"
+    });
+    const allTimes=(allResp.result.values&&allResp.result.values[0])||[];
+    // Helper: get time at row offset (0-indexed from row 3)
+    const getTimeAt=(d,mealIdx)=>{
+      const offset=(d-1)*ROWS_PER_DAY+mealIdx;
+      const v=allTimes[offset];
+      return(v&&v.trim()!=="")?v.trim():null;
+    };
+    // Find first meal today
+    let firstMealTime=null;
+    for(let mi=0;mi<9;mi++){
+      const t=getTimeAt(day,mi);
+      if(t){firstMealTime=t;break;}
     }
-    if(!firstMealToday)return null;
-    // Search backwards through previous days for last meal
+    if(!firstMealTime)return null;
+    // Find last meal before today (search backwards in same month)
     let lastMealTime=null;let lastMealDay=null;let lastMealMonth=month;
-    // Check current month backwards
     for(let d=day-1;d>=1;d--){
-      const s=getMealRow(d,0);const e=getMealRow(d,8);
-      const r=await gapi.client.sheets.spreadsheets.values.get({spreadsheetId:ssId,range:`'${getSheetName(lastMealMonth)}'!B${s}:B${e}`});
-      const times=r.result.values||[];
-      for(let i=times.length-1;i>=0;i--){
-        if(times[i]&&times[i][0]&&times[i][0].trim()!==""){lastMealTime=times[i][0].trim();lastMealDay=d;break;}
+      for(let mi=8;mi>=0;mi--){
+        const t=getTimeAt(d,mi);
+        if(t){lastMealTime=t;lastMealDay=d;break;}
       }
       if(lastMealTime)break;
     }
-    // If not found, check previous month
+    // If not found, check previous month with ONE API call
     if(!lastMealTime&&month>4){
       lastMealMonth=month-1;
+      const prevSheet=getSheetName(lastMealMonth);
       const prevDays=new Date(YEAR,lastMealMonth,0).getDate();
-      for(let d=prevDays;d>=1;d--){
-        const s=getMealRow(d,0);const e=getMealRow(d,8);
-        try{
-          const r=await gapi.client.sheets.spreadsheets.values.get({spreadsheetId:ssId,range:`'${getSheetName(lastMealMonth)}'!B${s}:B${e}`});
-          const times=r.result.values||[];
-          for(let i=times.length-1;i>=0;i--){
-            if(times[i]&&times[i][0]&&times[i][0].trim()!==""){lastMealTime=times[i][0].trim();lastMealDay=d;break;}
+      const prevLastRow=getMealRow(prevDays,8);
+      try{
+        const prevResp=await gapi.client.sheets.spreadsheets.values.get({
+          spreadsheetId:ssId,range:`'${prevSheet}'!B3:B${prevLastRow}`,majorDimension:"COLUMNS"
+        });
+        const prevTimes=(prevResp.result.values&&prevResp.result.values[0])||[];
+        const getPrevTimeAt=(d,mi)=>{
+          const offset=(d-1)*ROWS_PER_DAY+mi;
+          const v=prevTimes[offset];
+          return(v&&v.trim()!=="")?v.trim():null;
+        };
+        for(let d=prevDays;d>=1;d--){
+          for(let mi=8;mi>=0;mi--){
+            const t=getPrevTimeAt(d,mi);
+            if(t){lastMealTime=t;lastMealDay=d;break;}
           }
           if(lastMealTime)break;
-        }catch{break;}
-      }
+        }
+      }catch{}
     }
     if(!lastMealTime||!lastMealDay)return null;
-    // Parse times and calculate difference
-    const parseTime=(t)=>{const p=t.split(":");return parseInt(p[0])+parseInt(p[1]||0)/60};
-    const firstT=parseTime(firstMealToday.time);
+    // Calculate hours
+    const parseTime=(t)=>{const p=t.split(":");return parseInt(p[0])+(parseInt(p[1])||0)/60};
+    const firstT=parseTime(firstMealTime);
     const lastT=parseTime(lastMealTime);
-    // Calculate day difference
     const d1=new Date(YEAR,lastMealMonth-1,lastMealDay);
     const d2=new Date(YEAR,month-1,day);
     const dayDiff=(d2-d1)/(1000*60*60*24);
     const hours=dayDiff*24-lastT+firstT;
-    if(hours<=0||hours>168)return null; // sanity check (max 7 days)
+    if(hours<=0||hours>168)return null;
     return hours.toFixed(1);
   }catch(e){console.error("Fasting calc error:",e);return null}
 }
