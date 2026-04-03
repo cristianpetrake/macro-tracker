@@ -96,6 +96,22 @@ input:focus{border-color:#059669;box-shadow:0 0 0 3px rgba(5,150,105,.15)}
 .footer{text-align:center;font-size:10px;color:#9ca3af;padding:12px 0 max(12px,env(safe-area-inset-bottom))}
 .time-input{width:100px !important;text-align:center}
 .no-results{text-align:center;padding:16px;color:#9ca3af;font-size:12px}
+.notes-input{width:100%;padding:10px;border-radius:10px;border:1px solid #d1d5db;font-size:13px;outline:none;margin-top:6px;resize:none;min-height:38px}
+.notes-input:focus{border-color:#059669;box-shadow:0 0 0 3px rgba(5,150,105,.15)}
+.food-name-input{width:100%;padding:10px;border-radius:10px;border:1px solid #d1d5db;font-size:14px;outline:none;margin-bottom:6px}
+.food-name-input:focus{border-color:#059669;box-shadow:0 0 0 3px rgba(5,150,105,.15)}
+.exercise-card{background:#fff;border-radius:14px;box-shadow:0 1px 3px rgba(0,0,0,.08);border:1px solid #e5e7eb;padding:16px;margin-bottom:12px}
+.exercise-row{display:flex;gap:8px;align-items:center;margin-bottom:10px;flex-wrap:wrap}
+.exercise-row label{font-size:12px;font-weight:600;color:#374151;min-width:80px}
+.exercise-row input{flex:1;padding:10px;border-radius:10px;border:1px solid #d1d5db;font-size:14px;outline:none;min-width:80px}
+.exercise-row input:focus{border-color:#059669;box-shadow:0 0 0 3px rgba(5,150,105,.15)}
+.tag-row{display:flex;gap:6px;flex-wrap:wrap}
+.tag-btn{padding:8px 14px;border-radius:10px;font-size:12px;font-weight:600;border:1px solid #d1d5db;background:#fff;color:#6b7280;cursor:pointer}
+.tag-btn.active{border-color:#059669;background:#ecfdf5;color:#059669}
+.exercise-history-row{display:flex;align-items:center;justify-content:space-between;padding:10px;border-bottom:1px solid #f3f4f6}
+.exercise-history-row:last-child{border-bottom:none}
+.exercise-stat{font-size:12px;color:#374151;display:flex;align-items:center;gap:4px}
+.exercise-stat strong{font-weight:700}
 </style>
 </head>
 <body>
@@ -261,7 +277,7 @@ async function createSpreadsheet(){
     const totalRows=2+daysInMonth*ROWS_PER_DAY;
     const rows=[];
     // Header row
-    rows.push({values:["Data","Ora","Tipul Mesei","Ce am mâncat","Cantitate","Notițe","Calorii (kcal)","Proteine (g)","Carbohidrați (g)","Grăsimi (g)","Fasting (ore)"].map(v=>({userEnteredValue:{stringValue:v}}))});
+    rows.push({values:["Data","Ora","Tipul Mesei","Ce am mâncat","Cantitate","Notițe","Calorii (kcal)","Proteine (g)","Carbohidrați (g)","Grăsimi (g)","Fasting (ore)","Pași","Min. Mișcare","Tip Exercițiu","HBR Max"].map(v=>({userEnteredValue:{stringValue:v}}))});
     const daysRo=["Duminică","Luni","Marți","Miercuri","Joi","Vineri","Sâmbătă"];
     for(let d=1;d<=daysInMonth;d++){
       const dt=new Date(YEAR,m-1,d);
@@ -286,6 +302,10 @@ async function createSpreadsheet(){
         {userEnteredValue:{formulaValue:`=SUM(I${startR}:I${endR})`}},
         {userEnteredValue:{formulaValue:`=SUM(J${startR}:J${endR})`}},
         {userEnteredValue:{stringValue:""}},
+        {userEnteredValue:{formulaValue:`=IFERROR('Mișcare'!B${getExerciseRowForTemplate(m,d)},"")`}},
+        {userEnteredValue:{formulaValue:`=IFERROR('Mișcare'!C${getExerciseRowForTemplate(m,d)},"")`}},
+        {userEnteredValue:{formulaValue:`=IFERROR('Mișcare'!D${getExerciseRowForTemplate(m,d)},"")`}},
+        {userEnteredValue:{formulaValue:`=IFERROR('Mișcare'!E${getExerciseRowForTemplate(m,d)},"")`}},
       ]};
       rows.push(tRow);
       // Separator
@@ -293,7 +313,21 @@ async function createSpreadsheet(){
     }
     months.push({properties:{title:getSheetName(m)},data:[{startRow:1,startColumn:0,rowData:rows}]});
   }
-  // Title row added to first sheet
+  // Mișcare sheet - one row per day April-December
+  const exerciseRows=[];
+  exerciseRows.push({values:["Data","Nr. Pași","Minute Mișcare","Tip Exercițiu","HBR Max"].map(v=>({userEnteredValue:{stringValue:v}}))});
+  for(let m=4;m<=12;m++){
+    const daysInMonth=new Date(YEAR,m,0).getDate();
+    const daysRo=["Duminică","Luni","Marți","Miercuri","Joi","Vineri","Sâmbătă"];
+    for(let d=1;d<=daysInMonth;d++){
+      const dt=new Date(YEAR,m-1,d);
+      const dayName=daysRo[dt.getDay()];
+      const dateStr=`${String(d).padStart(2,'0')}.${String(m).padStart(2,'0')} (${dayName})`;
+      exerciseRows.push({values:[{userEnteredValue:{stringValue:dateStr}},{userEnteredValue:{stringValue:""}},{userEnteredValue:{stringValue:""}},{userEnteredValue:{stringValue:""}},{userEnteredValue:{stringValue:""}}]});
+    }
+  }
+  months.push({properties:{title:"Mișcare"},data:[{startRow:0,startColumn:0,rowData:exerciseRows}]});
+
   const resp=await gapi.client.sheets.spreadsheets.create({resource:{
     properties:{title:"Jurnal Alimentar - Macro Tracker"},
     sheets:months
@@ -315,14 +349,53 @@ async function readDayData(ssId,month,day){
   }catch(e){return[]}
 }
 
-async function writeMeal(ssId,month,day,mealIndex,time,foodDesc,quantity,cal,prot,carbs,fat){
+async function writeMeal(ssId,month,day,mealIndex,time,foodName,composition,notes,cal,prot,carbs,fat){
   const sheet=getSheetName(month);
   const row=getMealRow(day,mealIndex);
   const range=`'${sheet}'!B${row}:J${row}`;
   await gapi.client.sheets.spreadsheets.values.update({
     spreadsheetId:ssId,range,valueInputOption:"USER_ENTERED",
-    resource:{values:[[time,MEALS[mealIndex],foodDesc,quantity,"",cal,prot,carbs,fat]]}
+    resource:{values:[[time,MEALS[mealIndex],foodName,composition,notes,cal,prot,carbs,fat]]}
   });
+}
+
+// ==================== EXERCISE HELPERS ====================
+function getExerciseRowForTemplate(month,day){
+  // Same logic as getExerciseRow - used during template creation
+  let row=2;
+  for(let m=4;m<month;m++) row+=new Date(YEAR,m,0).getDate();
+  row+=(day-1);
+  return row;
+}
+
+function getExerciseRow(month,day){
+  // Row 1 = header, then days accumulate sequentially from April
+  let row=2; // first data row
+  for(let m=4;m<month;m++) row+=new Date(YEAR,m,0).getDate();
+  row+=(day-1);
+  return row;
+}
+
+async function writeExercise(ssId,month,day,stepsVal,minutes,type,hbr){
+  const sheetName="Mișcare";
+  const row=getExerciseRow(month,day);
+  const range=`'${sheetName}'!B${row}:E${row}`;
+  await gapi.client.sheets.spreadsheets.values.update({
+    spreadsheetId:ssId,range,valueInputOption:"USER_ENTERED",
+    resource:{values:[[stepsVal||"",minutes||"",type||"",hbr||""]]}
+  });
+}
+
+async function readExercise(ssId,month,day){
+  const sheetName="Mișcare";
+  const row=getExerciseRow(month,day);
+  const range=`'${sheetName}'!A${row}:E${row}`;
+  try{
+    const resp=await gapi.client.sheets.spreadsheets.values.get({spreadsheetId:ssId,range});
+    const v=resp.result.values?.[0];
+    if(!v)return null;
+    return{date:v[0]||"",steps:v[1]||"",minutes:v[2]||"",type:v[3]||"",hbr:v[4]||""};
+  }catch{return null}
 }
 
 async function readFasting(ssId,month,day){
@@ -387,7 +460,7 @@ function App(){
   const[authState,setAuthState]=useState("loading"); // loading|login|ready
   const[user,setUser]=useState(null);
   const[ssId,setSsId]=useState(null);
-  const[tab,setTab]=useState("add"); // add|history
+  const[tab,setTab]=useState("add"); // add|history|exercise
   const[status,setStatus]=useState(null);
   const[selectedDate,setSelectedDate]=useState(new Date());
   const[mealIndex,setMealIndex]=useState(0);
@@ -402,6 +475,15 @@ function App(){
   const[catFilter,setCatFilter]=useState("");
   const[showBrowse,setShowBrowse]=useState(false);
   const[loadingDay,setLoadingDay]=useState(false);
+  const[foodName,setFoodName]=useState("");
+  const[mealNotes,setMealNotes]=useState("");
+  // Exercise state
+  const[steps,setSteps]=useState("");
+  const[exerciseMinutes,setExerciseMinutes]=useState("");
+  const[exerciseType,setExerciseType]=useState("");
+  const[hbrMax,setHbrMax]=useState("");
+  const[savingExercise,setSavingExercise]=useState(false);
+  const[exerciseData,setExerciseData]=useState(null);
 
   const currentMonth=selectedDate.getMonth()+1;
   const currentDay=selectedDate.getDate();
@@ -462,6 +544,10 @@ function App(){
       setDayData(data);
       const f=await readFasting(ssId,currentMonth,currentDay);
       setFasting(f);
+      // Load exercise data
+      const ex=await readExercise(ssId,currentMonth,currentDay);
+      if(ex){setSteps(ex.steps);setExerciseMinutes(ex.minutes);setExerciseType(ex.type);setHbrMax(ex.hbr);setExerciseData(ex)}
+      else{setSteps("");setExerciseMinutes("");setExerciseType("");setHbrMax("");setExerciseData(null)}
       setLoadingDay(false);
     };
     load();
@@ -484,12 +570,12 @@ function App(){
     if(!meal.length||!ssId||!mealTime)return;
     setSaving(true);
     try{
-      const foodDesc=meal.map(it=>`${it.food.name} (${it.grams}g)`).join(", ");
-      const qty=meal.map(it=>`${it.grams}g`).join(", ");
-      await writeMeal(ssId,currentMonth,currentDay,mealIndex,mealTime,foodDesc,qty,
+      const composition=meal.map(it=>`${it.food.name} (${it.grams}g)`).join(", ");
+      const name=foodName||composition;
+      await writeMeal(ssId,currentMonth,currentDay,mealIndex,mealTime,name,composition,mealNotes,
         mealTotals.calories,mealTotals.protein,mealTotals.carbs,mealTotals.fat);
       setStatus({type:"ok",msg:`${MEALS[mealIndex]} salvat!`});
-      setMeal([]);
+      setMeal([]);setFoodName("");setMealNotes("");
       // Move to next meal type
       if(mealIndex<MEALS.length-1)setMealIndex(mealIndex+1);
       // Refresh day data
@@ -553,6 +639,7 @@ function App(){
         <div className="tab-bar">
           <div className={`tab${tab==="add"?" active":""}`} onClick={()=>setTab("add")}>Adaugă masă</div>
           <div className={`tab${tab==="history"?" active":""}`} onClick={()=>setTab("history")}>Ziua de azi</div>
+          <div className={`tab${tab==="exercise"?" active":""}`} onClick={()=>setTab("exercise")}>Mișcare</div>
         </div>
 
         {/* Date Navigation */}
@@ -645,6 +732,8 @@ function App(){
                   </div>
                 ))}
                 <MacroBar protein={mealTotals.protein} carbs={mealTotals.carbs} fat={mealTotals.fat}/>
+                <input type="text" className="food-name-input" value={foodName} onChange={e=>setFoodName(e.target.value)} placeholder="Ce am mâncat (ex: Omletă cu legume)"/>
+                <textarea className="notes-input" value={mealNotes} onChange={e=>setMealNotes(e.target.value)} placeholder="Notițe (opțional)" rows={2}/>
                 <div className="total-row">
                   <span>Total: {mealTotals.calories} kcal</span>
                   <button className="btn-save" onClick={saveMealToSheet} disabled={saving||!mealTime}>
@@ -694,6 +783,66 @@ function App(){
                     </div>
                   </div>
                 )}
+                {exerciseData&&(exerciseData.steps||exerciseData.minutes)&&(
+                  <div style={{marginTop:8,padding:'10px 12px',background:'#f0f9ff',borderRadius:10}}>
+                    <div style={{fontSize:12,fontWeight:600,color:'#3b82f6',marginBottom:4}}>Mișcare</div>
+                    <div style={{display:'flex',gap:12,flexWrap:'wrap',fontSize:12}}>
+                      {exerciseData.steps&&<span><strong>{exerciseData.steps}</strong> pași</span>}
+                      {exerciseData.minutes&&<span><strong>{exerciseData.minutes}</strong> min</span>}
+                      {exerciseData.type&&<span>{exerciseData.type}</span>}
+                      {exerciseData.hbr&&<span>HBR <strong>{exerciseData.hbr}</strong></span>}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        )}
+
+        {tab==="exercise"&&(
+          <div className="card">
+            <h2>Mișcare · {currentDay} {MONTHS_RO[currentMonth]}</h2>
+            <div className="exercise-row">
+              <label>Nr. pași</label>
+              <input type="number" value={steps} onChange={e=>setSteps(e.target.value)} placeholder="ex: 8000"/>
+            </div>
+            <div className="exercise-row">
+              <label>Minute mișcare</label>
+              <input type="number" value={exerciseMinutes} onChange={e=>setExerciseMinutes(e.target.value)} placeholder="ex: 45"/>
+            </div>
+            <div className="exercise-row">
+              <label>Tip exercițiu</label>
+              <div className="tag-row">
+                <button className={`tag-btn${exerciseType==="Ușoare"?" active":""}`} onClick={()=>setExerciseType(exerciseType==="Ușoare"?"":"Ușoare")}>Ușoare</button>
+                <button className={`tag-btn${exerciseType==="Intense"?" active":""}`} onClick={()=>setExerciseType(exerciseType==="Intense"?"":"Intense")}>Intense</button>
+              </div>
+            </div>
+            <div className="exercise-row">
+              <label>HBR max</label>
+              <input type="number" value={hbrMax} onChange={e=>setHbrMax(e.target.value)} placeholder="ex: 145"/>
+            </div>
+            <button className="btn-primary" style={{marginTop:8}} disabled={savingExercise} onClick={async()=>{
+              if(!ssId)return;
+              setSavingExercise(true);
+              try{
+                await writeExercise(ssId,currentMonth,currentDay,steps,exerciseMinutes,exerciseType,hbrMax);
+                setStatus({type:"ok",msg:"Mișcare salvată!"});
+                setExerciseData({steps,minutes:exerciseMinutes,type:exerciseType,hbr:hbrMax});
+                setTimeout(()=>setStatus(null),2000);
+              }catch(e){setStatus({type:"err",msg:"Eroare: "+e.message})}
+              setSavingExercise(false);
+            }}>
+              {savingExercise?"Salvez...":"Salvează mișcarea"}
+            </button>
+            {exerciseData&&(exerciseData.steps||exerciseData.minutes)&&(
+              <div style={{marginTop:12,padding:12,background:'#f0fdf4',borderRadius:10}}>
+                <div style={{fontSize:12,fontWeight:600,color:'#059669',marginBottom:6}}>Salvat azi:</div>
+                <div style={{display:'flex',gap:12,flexWrap:'wrap'}}>
+                  {exerciseData.steps&&<div className="exercise-stat"><strong>{exerciseData.steps}</strong> pași</div>}
+                  {exerciseData.minutes&&<div className="exercise-stat"><strong>{exerciseData.minutes}</strong> min</div>}
+                  {exerciseData.type&&<div className="exercise-stat">{exerciseData.type}</div>}
+                  {exerciseData.hbr&&<div className="exercise-stat">HBR <strong>{exerciseData.hbr}</strong></div>}
+                </div>
               </div>
             )}
           </div>
