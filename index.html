@@ -326,10 +326,60 @@ async function writeMeal(ssId,month,day,mealIndex,time,foodDesc,quantity,cal,pro
 }
 
 async function readFasting(ssId,month,day){
-  const sheet=getSheetName(month);
-  const row=getTotalRow(day);
-  const range=`'${sheet}'!K${row}`;
-  try{const resp=await gapi.client.sheets.spreadsheets.values.get({spreadsheetId:ssId,range});return resp.result.values?.[0]?.[0]||null}catch{return null}
+  // Calculate fasting: time between last meal (any previous day) and first meal today
+  try{
+    const sheet=getSheetName(month);
+    // Get first meal time today
+    const todayStart=getMealRow(day,0);
+    const todayEnd=getMealRow(day,8);
+    const todayResp=await gapi.client.sheets.spreadsheets.values.get({spreadsheetId:ssId,range:`'${sheet}'!B${todayStart}:B${todayEnd}`});
+    const todayTimes=todayResp.result.values||[];
+    let firstMealToday=null;
+    for(let i=0;i<todayTimes.length;i++){
+      if(todayTimes[i]&&todayTimes[i][0]&&todayTimes[i][0].trim()!==""){firstMealToday={mealIdx:i,time:todayTimes[i][0].trim()};break;}
+    }
+    if(!firstMealToday)return null;
+    // Search backwards through previous days for last meal
+    let lastMealTime=null;let lastMealDay=null;let lastMealMonth=month;
+    // Check current month backwards
+    for(let d=day-1;d>=1;d--){
+      const s=getMealRow(d,0);const e=getMealRow(d,8);
+      const r=await gapi.client.sheets.spreadsheets.values.get({spreadsheetId:ssId,range:`'${getSheetName(lastMealMonth)}'!B${s}:B${e}`});
+      const times=r.result.values||[];
+      for(let i=times.length-1;i>=0;i--){
+        if(times[i]&&times[i][0]&&times[i][0].trim()!==""){lastMealTime=times[i][0].trim();lastMealDay=d;break;}
+      }
+      if(lastMealTime)break;
+    }
+    // If not found, check previous month
+    if(!lastMealTime&&month>4){
+      lastMealMonth=month-1;
+      const prevDays=new Date(YEAR,lastMealMonth,0).getDate();
+      for(let d=prevDays;d>=1;d--){
+        const s=getMealRow(d,0);const e=getMealRow(d,8);
+        try{
+          const r=await gapi.client.sheets.spreadsheets.values.get({spreadsheetId:ssId,range:`'${getSheetName(lastMealMonth)}'!B${s}:B${e}`});
+          const times=r.result.values||[];
+          for(let i=times.length-1;i>=0;i--){
+            if(times[i]&&times[i][0]&&times[i][0].trim()!==""){lastMealTime=times[i][0].trim();lastMealDay=d;break;}
+          }
+          if(lastMealTime)break;
+        }catch{break;}
+      }
+    }
+    if(!lastMealTime||!lastMealDay)return null;
+    // Parse times and calculate difference
+    const parseTime=(t)=>{const p=t.split(":");return parseInt(p[0])+parseInt(p[1]||0)/60};
+    const firstT=parseTime(firstMealToday.time);
+    const lastT=parseTime(lastMealTime);
+    // Calculate day difference
+    const d1=new Date(YEAR,lastMealMonth-1,lastMealDay);
+    const d2=new Date(YEAR,month-1,day);
+    const dayDiff=(d2-d1)/(1000*60*60*24);
+    const hours=dayDiff*24-lastT+firstT;
+    if(hours<=0||hours>168)return null; // sanity check (max 7 days)
+    return hours.toFixed(1);
+  }catch(e){console.error("Fasting calc error:",e);return null}
 }
 
 // ==================== MAIN APP ====================
