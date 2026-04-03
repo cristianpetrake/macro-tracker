@@ -132,110 +132,15 @@ const YEAR = 2026;
 
 // ==================== FOOD DATABASE ====================
 function round1(n){return Math.round(n*10)/10}
-const FOODS=[
-{name:"Ou fiert",cat:"Proteine",cal:155,p:13,c:1.1,f:11},
-{name:"Ou ochi",cat:"Proteine",cal:196,p:13.6,c:0.8,f:15},
-{name:"Piept de pui",cat:"Proteine",cal:165,p:31,c:0,f:3.6},
-{name:"Piept de pui la grătar",cat:"Proteine",cal:165,p:31,c:0,f:3.6},
-{name:"Pulpă de pui",cat:"Proteine",cal:209,p:26,c:0,f:11},
-{name:"Carne de vită",cat:"Proteine",cal:250,p:26,c:0,f:15},
-{name:"Carne tocată vită",cat:"Proteine",cal:254,p:17,c:0,f:20},
-{name:"Carne tocată porc",cat:"Proteine",cal:263,p:17,c:0,f:21},
-{name:"Carne de porc",cat:"Proteine",cal:242,p:27,c:0,f:14},
-{name:"Cotlet de porc",cat:"Proteine",cal:231,p:26,c:0,f:13},
-{name:"Salam",cat:"Proteine",cal:336,p:13,c:2,f:30},
-{name:"Șuncă",cat:"Proteine",cal:145,p:21,c:1.5,f:6},
-{name:"Cârnați",cat:"Proteine",cal:301,p:12,c:2,f:27},
-{name:"Somon",cat:"Proteine",cal:208,p:20,c:0,f:13},
-{name:"Ton conservă",cat:"Proteine",cal:116,p:26,c:0,f:1},
-{name:"Sardine conservă",cat:"Proteine",cal:208,p:25,c:0,f:11},
-{name:"Macrou",cat:"Proteine",cal:205,p:19,c:0,f:14},
-{name:"Păstrăv",cat:"Proteine",cal:141,p:20,c:0,f:6.6},
-{name:"Creveți",cat:"Proteine",cal:99,p:24,c:0.2,f:0.3},
-{name:"Tofu",cat:"Proteine vegetale",cal:76,p:8,c:1.9,f:4.8},
-{name:"Tofu firm",cat:"Proteine vegetale",cal:144,p:17,c:3,f:8.7},
-{name:"Tempeh",cat:"Proteine vegetale",cal:192,p:20,c:7.6,f:11},
-{name:"Linte",cat:"Proteine vegetale",cal:116,p:9,c:20,f:0.4},
-{name:"Năut",cat:"Proteine vegetale",cal:164,p:8.9,c:27,f:2.6},
-{name:"Fasole",cat:"Proteine vegetale",cal:127,p:8.7,c:22,f:0.5},
-{name:"Fasole roșie",cat:"Proteine vegetale",cal:127,p:8.7,c:22,f:0.5},
-{name:"Mazăre",cat:"Proteine vegetale",cal:81,p:5.4,c:14,f:0.4},
-{name:"Edamame",cat:"Proteine vegetale",cal:121,p:12,c:9,f:5},
-{name:"Hummus",cat:"Proteine vegetale",cal:166,p:8,c:14,f:10},
-{name:"Lapte 1.5%",cat:"Lactate",cal:47,p:3.4,c:4.9,f:1.5},
-{name:"Lapte 3.5%",cat:"Lactate",cal:64,p:3.3,c:4.7,f:3.6},
-{name:"Iaurt natural",cat:"Lactate",cal:61,p:3.5,c:4.7,f:3.3},
-{name:"Iaurt grecesc",cat:"Lactate",cal:97,p:9,c:3.6,f:5},
-{name:"Iaurt grecesc 0%",cat:"Lactate",cal:59,p:10,c:3.6,f:0.4},
-{name:"Brânză de vaci",cat:"Lactate",cal:98,p:11,c:3.4,f:4.3},
-{name:"Brânză telemea",cat:"Lactate",cal:264,p:17,c:1,f:21},
-{name:"Cașcaval",cat:"Lactate",cal:350,p:25,c:2,f:27},
-{name:"Mozzarella",cat:"Lactate",cal:280,p:22,c:2.2,f:17},
-{name:"Parmezan",cat:"Lactate",cal:392,p:36,c:3.2,f:26},
-{name:"Smântână 20%",cat:"Lactate",cal:204,p:2.5,c:3.4,f:20},
-{name:"Unt",cat:"Lactate",cal:717,p:0.9,c:0.1,f:81},
-{name:"Pâine albă",cat:"Cereale",cal:265,p:9,c:49,f:3.2},
-{name:"Pâine integrală",cat:"Cereale",cal:247,p:13,c:41,f:3.4},
-{name:"Orez alb fiert",cat:"Cereale",cal:130,p:2.7,c:28,f:0.3},
-{name:"Orez brun fiert",cat:"Cereale",cal:123,p:2.6,c:26,f:1},
-{name:"Paste fierte",cat:"Cereale",cal:131,p:5,c:25,f:1.1},
-{name:"Ovăz / fulgi de ovăz",cat:"Cereale",cal:389,p:17,c:66,f:6.9},
-{name:"Mămăligă",cat:"Cereale",cal:70,p:1.6,c:15,f:0.3},
-{name:"Quinoa fiartă",cat:"Cereale",cal:120,p:4.4,c:21,f:1.9},
-{name:"Tortilla",cat:"Cereale",cal:312,p:8,c:52,f:8},
-{name:"Müsli",cat:"Cereale",cal:370,p:9,c:66,f:7},
-{name:"Roșii",cat:"Legume",cal:18,p:0.9,c:3.9,f:0.2},
-{name:"Castraveți",cat:"Legume",cal:15,p:0.7,c:3.6,f:0.1},
-{name:"Ardei gras",cat:"Legume",cal:31,p:1,c:6,f:0.3},
-{name:"Ceapă",cat:"Legume",cal:40,p:1.1,c:9.3,f:0.1},
-{name:"Morcovi",cat:"Legume",cal:41,p:0.9,c:10,f:0.2},
-{name:"Cartofi fierți",cat:"Legume",cal:87,p:1.9,c:20,f:0.1},
-{name:"Cartofi prăjiți",cat:"Legume",cal:312,p:3.4,c:41,f:15},
-{name:"Spanac",cat:"Legume",cal:23,p:2.9,c:3.6,f:0.4},
-{name:"Broccoli",cat:"Legume",cal:34,p:2.8,c:7,f:0.4},
-{name:"Conopidă",cat:"Legume",cal:25,p:1.9,c:5,f:0.3},
-{name:"Varză",cat:"Legume",cal:25,p:1.3,c:5.8,f:0.1},
-{name:"Dovlecei",cat:"Legume",cal:17,p:1.2,c:3.1,f:0.3},
-{name:"Vinete",cat:"Legume",cal:25,p:1,c:6,f:0.2},
-{name:"Ciuperci",cat:"Legume",cal:22,p:3.1,c:3.3,f:0.3},
-{name:"Gulie",cat:"Legume",cal:27,p:1.7,c:6.2,f:0.1},
-{name:"Avocado",cat:"Legume",cal:160,p:2,c:8.5,f:15},
-{name:"Banană",cat:"Fructe",cal:89,p:1.1,c:23,f:0.3},
-{name:"Măr",cat:"Fructe",cal:52,p:0.3,c:14,f:0.2},
-{name:"Portocală",cat:"Fructe",cal:47,p:0.9,c:12,f:0.1},
-{name:"Căpșuni",cat:"Fructe",cal:32,p:0.7,c:7.7,f:0.3},
-{name:"Kiwi",cat:"Fructe",cal:61,p:1.1,c:15,f:0.5},
-{name:"Afine",cat:"Fructe",cal:57,p:0.7,c:14,f:0.3},
-{name:"Curmale",cat:"Fructe",cal:277,p:1.8,c:75,f:0.2},
-{name:"Nuci",cat:"Nuci",cal:654,p:15,c:14,f:65},
-{name:"Migdale",cat:"Nuci",cal:579,p:21,c:22,f:50},
-{name:"Caju",cat:"Nuci",cal:553,p:18,c:30,f:44},
-{name:"Arahide",cat:"Nuci",cal:567,p:26,c:16,f:49},
-{name:"Unt de arahide",cat:"Nuci",cal:588,p:25,c:20,f:50},
-{name:"Semințe de floarea soarelui",cat:"Nuci",cal:584,p:21,c:20,f:51},
-{name:"Semințe de dovleac",cat:"Nuci",cal:559,p:30,c:11,f:49},
-{name:"Semințe de chia",cat:"Nuci",cal:486,p:17,c:42,f:31},
-{name:"Ulei de măsline",cat:"Grăsimi",cal:884,p:0,c:0,f:100},
-{name:"Ciocolată neagră 70%",cat:"Dulciuri",cal:598,p:7.8,c:46,f:43},
-{name:"Miere",cat:"Dulciuri",cal:304,p:0.3,c:82,f:0},
-{name:"Cafea (fără zahăr)",cat:"Băuturi",cal:2,p:0.3,c:0,f:0},
-{name:"Cafea cu lapte",cat:"Băuturi",cal:30,p:1.5,c:2.4,f:1.5},
-{name:"Ceai",cat:"Băuturi",cal:1,p:0,c:0.3,f:0},
-{name:"Ketchup",cat:"Sosuri",cal:112,p:1.7,c:26,f:0.1},
-{name:"Maioneză",cat:"Sosuri",cal:680,p:1,c:0.6,f:75},
-{name:"Pesto",cat:"Sosuri",cal:387,p:4,c:6,f:38},
-{name:"Sos de roșii",cat:"Sosuri",cal:29,p:1.3,c:5.5,f:0.3},
-{name:"Sarmale",cat:"Mâncăruri",cal:150,p:8,c:10,f:9},
-{name:"Ciorbă de legume",cat:"Mâncăruri",cal:35,p:1.5,c:6,f:0.5},
-{name:"Supă de pui",cat:"Mâncăruri",cal:36,p:2.5,c:4,f:1},
-{name:"Mici / mititei",cat:"Mâncăruri",cal:240,p:17,c:3,f:18},
-{name:"Pizza Margherita",cat:"Mâncăruri",cal:266,p:11,c:33,f:10},
-{name:"Shaorma",cat:"Mâncăruri",cal:215,p:12,c:18,f:10},
-{name:"Omletă (2 ouă)",cat:"Mâncăruri",cal:154,p:11,c:0.7,f:12},
-{name:"Clătite",cat:"Mâncăruri",cal:227,p:6,c:28,f:10},
-{name:"Pilaf de orez",cat:"Mâncăruri",cal:145,p:3,c:25,f:3.5},
-];
-const CATEGORIES=[...new Set(FOODS.map(f=>f.cat))];
+let FOODS=[];
+let CATEGORIES=[];
+async function loadFoods(){
+  try{
+    const resp=await fetch('foods.json');
+    FOODS=await resp.json();
+    CATEGORIES=[...new Set(FOODS.map(f=>f.cat))];
+  }catch(e){console.error('Eroare la încărcarea foods.json:',e)}
+}
 const MEALS=["Mic dejun","Gustare 1","Gustare 2","Prânz","Gustare 3","Gustare 4","Cină","Gustare 5","Gustare 6"];
 const MONTHS_RO=["","Ianuarie","Februarie","Martie","Aprilie","Mai","Iunie","Iulie","August","Septembrie","Octombrie","Noiembrie","Decembrie"];
 const ROWS_PER_DAY=11; // 9 meals + total + separator
@@ -473,6 +378,7 @@ async function readFasting(ssId,month,day){
 
 // ==================== MAIN APP ====================
 function App(){
+  const[foodsLoaded,setFoodsLoaded]=useState(false);
   const[authState,setAuthState]=useState("loading"); // loading|login|ready
   const[user,setUser]=useState(null);
   const[ssId,setSsId]=useState(null);
@@ -505,6 +411,11 @@ function App(){
   const currentDay=selectedDate.getDate();
   const dayName=selectedDate.toLocaleDateString("ro-RO",{weekday:"long"});
   const dateLabel=`${currentDay} ${MONTHS_RO[currentMonth]} ${YEAR}`;
+
+  // Load foods from JSON
+  useEffect(()=>{
+    loadFoods().then(()=>setFoodsLoaded(true));
+  },[]);
 
   // Auto-set time
   useEffect(()=>{
@@ -615,7 +526,7 @@ function App(){
   const preview=selectedFood?calcMacros(selectedFood,grams):null;
 
   // ==================== LOGIN SCREEN ====================
-  if(authState==="loading")return(<div className="loading"><div className="spinner"/><div>Se încarcă...</div></div>);
+  if(!foodsLoaded||authState==="loading")return(<div className="loading"><div className="spinner"/><div>Se încarcă...</div></div>);
   if(authState==="login")return(
     <div className="login-screen">
       <h1>Macro Tracker</h1>
