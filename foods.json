@@ -119,5 +119,8 @@
   {"name":"Colivă","cat":"Dulciuri","cal":277,"p":6.3,"c":29.4,"f":16.6},
   {"name":"Icre de pește","cat":"Proteine","cal":196,"p":28.6,"c":1.9,"f":8.2},
   {"name":"Salată de icre","cat":"Sosuri","cal":560,"p":4,"c":3,"f":58},
-  {"name":"Supă cremă de legume","cat":"Mâncăruri","cal":52,"p":1,"c":7.8,"f":2}
+  {"name":"Supă cremă de legume","cat":"Mâncăruri","cal":52,"p":1,"c":7.8,"f":2},
+  {"name":"Pâine integrală prăjită","cat":"Cereale","cal":375,"p":11.5,"c":68,"f":4},
+  {"name":"Pâine cu maia și semințe","cat":"Cereale","cal":273,"p":12,"c":38,"f":7.5},
+  {"name":"Pâine cu maia","cat":"Cereale","cal":235,"p":8,"c":46,"f":1.3}
 ]
