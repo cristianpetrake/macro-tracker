@@ -115,5 +115,8 @@
   {"name":"Ciorbă de fasole fără carne","cat":"Mâncăruri","cal":38,"p":2.0,"c":5.5,"f":1.0},
   {"name":"Mâncare de fasole fără carne","cat":"Mâncăruri","cal":97,"p":5.4,"c":13.0,"f":2.6},
   {"name":"Spaghete cu pesmet și nucă","cat":"Mâncăruri","cal":288,"p":6.4,"c":40,"f":13.2},
-  {"name":"Gem de prune","cat":"Dulciuri","cal":250,"p":0.3,"c":62,"f":0.2}
+  {"name":"Gem de prune","cat":"Dulciuri","cal":250,"p":0.3,"c":62,"f":0.2},
+  {"name":"Colivă","cat":"Dulciuri","cal":277,"p":6.3,"c":29.4,"f":16.6},
+  {"name":"Icre de pește","cat":"Proteine","cal":196,"p":28.6,"c":1.9,"f":8.2},
+  {"name":"Salată de icre","cat":"Sosuri","cal":560,"p":4,"c":3,"f":58}
 ]
