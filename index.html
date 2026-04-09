@@ -276,6 +276,16 @@ async function writeMeal(ssId,month,day,mealIndex,time,foodName,composition,note
   });
 }
 
+async function deleteMeal(ssId,month,day,mealIndex){
+  const sheet=getSheetName(month);
+  const row=getMealRow(day,mealIndex);
+  const range=`'${sheet}'!B${row}:J${row}`;
+  await gapi.client.sheets.spreadsheets.values.update({
+    spreadsheetId:ssId,range,valueInputOption:"USER_ENTERED",
+    resource:{values:[["",MEALS[mealIndex],"","","","","","",""]]}
+  });
+}
+
 // ==================== EXERCISE HELPERS ====================
 function getExerciseRowForTemplate(month,day){
   // Same logic as getExerciseRow - used during template creation
@@ -431,9 +441,10 @@ function App(){
 
   // Auto-set time
   useEffect(()=>{
-    const now=new Date();
-    setMealTime(`${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`);
-  },[mealIndex]);
+    const existingTime=dayData[mealIndex]?.[1];
+    if(existingTime&&existingTime.trim()){setMealTime(existingTime.trim())}
+    else{const now=new Date();setMealTime(`${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`)}
+  },[mealIndex,dayData]);
 
   // Init Google APIs
   useEffect(()=>{
@@ -509,21 +520,51 @@ function App(){
     if(!meal.length||!ssId||!mealTime)return;
     setSaving(true);
     try{
-      const composition=meal.map(it=>`${it.food.name} (${it.grams}g)`).join(", ");
-      const name=foodName||composition;
-      await writeMeal(ssId,currentMonth,currentDay,mealIndex,mealTime,name,composition,mealNotes,
-        mealTotals.calories,mealTotals.protein,mealTotals.carbs,mealTotals.fat);
+      const newComposition=meal.map(it=>`${it.food.name} (${it.grams}g)`).join(", ");
+      let finalComposition=newComposition;
+      let finalName=foodName||newComposition;
+      let finalNotes=mealNotes;
+      let finalCal=mealTotals.calories;
+      let finalProt=mealTotals.protein;
+      let finalCarbs=mealTotals.carbs;
+      let finalFat=mealTotals.fat;
+      const existing=dayData[mealIndex];
+      if(existing&&existing[3]){
+        const oldComp=existing[4]||"";
+        finalComposition=oldComp?`${oldComp}, ${newComposition}`:newComposition;
+        const oldName=existing[3]||"";
+        finalName=foodName?`${oldName}, ${foodName}`:`${oldName}, ${newComposition}`;
+        const oldNotes=existing[5]||"";
+        finalNotes=oldNotes&&mealNotes?`${oldNotes}; ${mealNotes}`:(oldNotes||mealNotes);
+        finalCal+=Number(existing[6])||0;
+        finalProt=round1(finalProt+(Number(existing[7])||0));
+        finalCarbs=round1(finalCarbs+(Number(existing[8])||0));
+        finalFat=round1(finalFat+(Number(existing[9])||0));
+      }
+      await writeMeal(ssId,currentMonth,currentDay,mealIndex,mealTime,finalName,finalComposition,finalNotes,
+        finalCal,finalProt,finalCarbs,finalFat);
       setStatus({type:"ok",msg:`${MEALS[mealIndex]} salvat!`});
       setMeal([]);setFoodName("");setMealNotes("");
-      // Move to next meal type
       if(mealIndex<MEALS.length-1)setMealIndex(mealIndex+1);
-      // Refresh day data
       const data=await readDayData(ssId,currentMonth,currentDay);
       setDayData(data);
       setTimeout(()=>setStatus(null),2000);
     }catch(e){
       setStatus({type:"err",msg:"Eroare la salvare: "+e.message});
     }
+    setSaving(false);
+  };
+
+  const deleteMealFromSheet=async()=>{
+    if(!ssId)return;
+    setSaving(true);
+    try{
+      await deleteMeal(ssId,currentMonth,currentDay,mealIndex);
+      setStatus({type:"ok",msg:`${MEALS[mealIndex]} șters!`});
+      const data=await readDayData(ssId,currentMonth,currentDay);
+      setDayData(data);
+      setTimeout(()=>setStatus(null),2000);
+    }catch(e){setStatus({type:"err",msg:"Eroare la ștergere: "+e.message})}
     setSaving(false);
   };
 
@@ -599,6 +640,27 @@ function App(){
                 </select>
                 <input type="time" value={mealTime} onChange={e=>setMealTime(e.target.value)} className="time-input" style={{width:100}}/>
               </div>
+
+              {dayData[mealIndex]&&dayData[mealIndex][3]&&(
+                <div style={{background:'#fdf8ef',border:'1px solid #e8d5a8',borderRadius:12,padding:12,marginBottom:10}}>
+                  <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start'}}>
+                    <div>
+                      <div style={{fontSize:11,fontWeight:700,color:'#b45309',marginBottom:4,textTransform:'uppercase',letterSpacing:'.3px'}}>Deja salvat</div>
+                      <div style={{fontSize:13,fontWeight:700,color:'#292524'}}>{dayData[mealIndex][3]}</div>
+                      {dayData[mealIndex][4]&&<div style={{fontSize:11,color:'#78716c',marginTop:2}}>{dayData[mealIndex][4]}</div>}
+                    </div>
+                    <button onClick={deleteMealFromSheet} disabled={saving} style={{padding:'6px 10px',background:'#fef2f2',color:'#dc2626',border:'1px solid #fecaca',borderRadius:10,fontSize:11,fontWeight:700,cursor:'pointer',whiteSpace:'nowrap',flexShrink:0}}>
+                      Șterge
+                    </button>
+                  </div>
+                  <div style={{display:'flex',gap:8,marginTop:8,fontSize:11,fontWeight:700}}>
+                    <span className="purple">{dayData[mealIndex][6]} kcal</span>
+                    <span className="blue">P {dayData[mealIndex][7]}g</span>
+                    <span className="red">C {dayData[mealIndex][8]}g</span>
+                    <span className="green">G {dayData[mealIndex][9]}g</span>
+                  </div>
+                </div>
+              )}
 
               {/* Search */}
               <input type="text" value={query} onChange={e=>{setQuery(e.target.value);setSelectedFood(null);setShowBrowse(false);setCatFilter("")}} placeholder="Caută aliment..." />
@@ -676,7 +738,7 @@ function App(){
                 <div className="total-row">
                   <span>Total: {mealTotals.calories} kcal</span>
                   <button className="btn-save" onClick={saveMealToSheet} disabled={saving||!mealTime}>
-                    {saving?"Salvez...":"Salvează în Sheet"}
+                    {saving?"Salvez...":(dayData[mealIndex]?.[3]?"Adaugă la masă":"Salvează în Sheet")}
                   </button>
                 </div>
               </div>
